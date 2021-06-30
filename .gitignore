@@ -131,3 +131,4 @@ dmypy.json
 # Others
 *.log
 save/
+.vscode
