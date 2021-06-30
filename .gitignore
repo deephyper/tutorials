@@ -133,3 +133,4 @@ dmypy.json
 save/
 .vscode
 _build/
+*.code-workspace
