@@ -134,3 +134,5 @@ save/
 .vscode
 _build/
 *.code-workspace
+init_infos.json
+results.csv

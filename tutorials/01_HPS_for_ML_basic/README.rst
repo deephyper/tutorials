@@ -11,24 +11,23 @@ Let us start by creating a DeepHyper project and a problem for our application:
 .. code-block:: console
     :caption: bash
 
-    $ deephyper start-project dhproj
-    $ cd dhproj/dhproj/
+    $ deephyper start-project dh_project
+    $ cd dh_project/dh_project/
     $ deephyper new-problem hps rf_tuning
     $ cd rf_tuning/
 
 Create a script to test the accuracy of the baseline model:
 
-.. literalinclude:: dh_project/dh_project/rf_tuning/test_config.py
-    :caption: rf_tuning/test_config.py
-    :name: rf_tuning-test_config
+.. literalinclude:: dh_project/dh_project/rf_tuning/run_baseline.py
+    :caption: rf_tuning/run_baseline.py
+    :name: rf_tuning-run_baseline
 
 Run the script and record the training, validation, and test accuracy as follows:
 
 .. code-block:: console
     :caption: bash
 
-    $ python -i test_config.py
-    >>> test_config({})
+    $ python run_baseline.py
 
 Running the script will give the the following output:
 
@@ -107,7 +106,7 @@ Run the search for 20 model evaluations using the following command line:
 .. code-block:: console
     :caption: bash
 
-    $ deephyper hps ambs --problem dhproj.rf_tuning.problem.Problem --run dhproj.rf_tuning.model_run.run --max-evals 20 --evaluator subprocess --n-jobs 4
+    $ deephyper hps ambs --problem dh_project.rf_tuning.problem.Problem --run dh_project.rf_tuning.model_run.run --max-evals 20 --evaluator subprocess --n-jobs 4
 
 Once the search is over, the ``results.csv`` file contains the hyperparameters configurations evaluated during the search and their corresponding objective value (validation accuracy).
 Create ``test_best_config.py`` as given belwo. It will extract the best configuration from the ``results.csv`` and run RF with it.

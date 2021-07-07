@@ -1,7 +1,7 @@
 from sklearn.utils import check_random_state
 from sklearn.ensemble import RandomForestClassifier
 
-from dhproj.rf_tuning.load_data import load_data
+from dh_project.rf_tuning.load_data import load_data
 
 
 def run(config):

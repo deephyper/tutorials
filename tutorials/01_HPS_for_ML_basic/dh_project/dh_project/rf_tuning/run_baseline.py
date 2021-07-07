@@ -1,4 +1,4 @@
-def test_config(config):
+def run_baseline():
     import numpy as np
     from sklearn.utils import check_random_state
     from sklearn.ensemble import RandomForestClassifier
@@ -18,7 +18,7 @@ def test_config(config):
 
     rs_classifier = check_random_state(42)
 
-    classifier = RandomForestClassifier(n_jobs=8, random_state=rs_classifier, **config)
+    classifier = RandomForestClassifier(n_jobs=4, random_state=rs_classifier)
     classifier.fit(*train)
 
     acc_train = classifier.score(*train)
@@ -28,3 +28,7 @@ def test_config(config):
     print(f"Accuracy on Training: {acc_train:.3f}")
     print(f"Accuracy on Validation: {acc_valid:.3f}")
     print(f"Accuracy on Testing: {acc_test:.3f}")
+
+
+if __name__ == "__main__":
+    run_baseline()
