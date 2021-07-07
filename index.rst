@@ -11,6 +11,7 @@ Welcome to deephyper-tutorials's documentation!
    :caption: Contents:
 
    tutorials/01_HPS_for_ML_basic/README
+   tutorials/02_HPS_for_ML_advanced/README
 
 
 

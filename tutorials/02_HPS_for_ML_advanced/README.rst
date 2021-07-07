@@ -27,7 +27,7 @@ Let us start by creating a DeepHyper project and a problem for our application:
 
 Create a ``mapping.py`` script where you will record the classification algorithms of interest (``$ touch mapping.py`` in the terminal then edit the file):
 
-.. literalinclude:: content_hps_ml_advanced/mapping.py
+.. literalinclude:: dh_project/dh_project/advanced_hpo/mapping.py
     :language: python
     :caption: advanced_hpo/mapping.py
     :name: advanced_hpo-mapping
@@ -35,7 +35,7 @@ Create a ``mapping.py`` script where you will record the classification algorith
 
 Create a script to test the accuracy of the default configuration for both the models:
 
-.. literalinclude:: content_hps_ml_advanced/default_configs.py
+.. literalinclude:: dh_project/dh_project/advanced_hpo/default_configs.py
     :linenos:
     :caption: advanced_hpo/default_configs.py
     :name: advanced_hpo-default_configs
@@ -71,7 +71,7 @@ Next, we optimize the hyperparameters, where we seek to find the right classifie
 and improve the accuracy on the vaidation and test data.
 Create ``load_data.py`` file to load and return training and validation data:
 
-.. literalinclude:: content_hps_ml_advanced/load_data.py
+.. literalinclude:: dh_project/dh_project/advanced_hpo/load_data.py
     :linenos:
     :caption: advanced_hpo/load_data.py
     :name: advanced_hpo-load_data
@@ -99,14 +99,14 @@ The expected output is:
 Create ``model_run.py`` file to train and evaluate a given hyperparameter configuration.
 This function has to return a scalar value (typically, validation accuracy), which will be maximized by the search algorithm.
 
-.. literalinclude:: content_hps_ml_advanced/model_run.py
+.. literalinclude:: dh_project/dh_project/advanced_hpo/model_run.py
     :linenos:
     :caption: advanced_hpo/model_run.py
     :name: advanced_hpo-model_run
 
 Create ``problem.py`` to define the search space of hyperparameters for each model:
 
-.. literalinclude:: content_hps_ml_advanced/problem.py
+.. literalinclude:: dh_project/dh_project/advanced_hpo/problem.py
     :linenos:
     :caption: advanced_hpo/problem.py
     :name: advanced_hpo-problem
@@ -145,7 +145,7 @@ Run the search for 20 model evaluations using the following command line:
 Once the search is over, the ``results.csv`` file contains the hyperparameters configurations evaluated during the search and their corresponding objective value (validation accuracy).
 Create ``best_config.py`` as given below. It will extract the best configuration from the ``results.csv`` and run it for the training, validation and test set.
 
-.. literalinclude:: content_hps_ml_advanced/best_config.py
+.. literalinclude:: dh_project/dh_project/advanced_hpo/best_config.py
     :linenos:
     :caption: advanced_hpo/best_config.py
     :name: advanced_hpo-best_config
