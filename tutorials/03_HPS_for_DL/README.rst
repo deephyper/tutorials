@@ -319,45 +319,43 @@ Use the ``balsam-submit`` command to set up and dispatch an ``AMBS`` job to the 
 .. code-block:: console
     :caption: bash
 
-    deephyper balsam-submit hps polynome2_demo -p dh_project.polynome2.problem.Problem -r dh_project.polynome2.model_run.run -t 30 -q debug-cache-quad -n 4 -A datascience -j mpi
+    deephyper balsam-submit hps ambs -w polynome_exp1 --problem dh_project.polynome2.problem.Problem --run dh_project.polynome2.model_run.run -t 15 -q debug-cache-quad -n 2 -A datascience -j mpi
 
 
 .. code-block:: console
     :caption: [Out]
 
-    Validating Problem...OK
+    Validating Problem(deephyper.benchmark.hps.polynome2.Problem)...OK
     Validating run...OK
     Bootstrapping apps...OK
-    Creating HPS(AMBS) BalsamJob...OK
+    Creating BalsamJob using application HPS-AMBS...OK
     Performing job submission...
-    Submit OK: Qlaunch {   'command': '/lus/theta-fs0/projects/datascience/msalim/deephyper/deephyper/db/qsubmit/qlaunch12.sh',
+    Submit OK: Qlaunch {   'command': '/lus/grand/projects/datascience/regele/theta/test/testdb/qsubmit/qlaunch1.sh',
         'from_balsam': True,
-        'id': 12,
+        'id': 1,
         'job_mode': 'mpi',
-        'nodes': 4,
+        'nodes': 2,
         'prescheduled_only': False,
         'project': 'datascience',
         'queue': 'debug-cache-quad',
-        'scheduler_id': 370907,
+        'scheduler_id': 531439,
         'state': 'submitted',
-        'wall_minutes': 30,
-        'wf_filter': 'test_hps'}
-    **************************************************************************************************************************************
-    Success. The search will run at: /myprojects/deephyper/deephyper/db/data/test_hps/test_hps_2ef063ce
-    **************************************************************************************************************************************
+        'wall_minutes': 15,
+        'wf_filter': 'polynome_exp1'}
 
 Above, ``balsam-submit`` takes the following arguments:
 
     1. The first positional argument **mode** is either ``hps`` or ``nas``
-    2. The second positional argument **workflow** must be a unique identifier for the run. An error will be raised if this workflow already exists.
-    3. ``-p Problem`` and ``-r Run`` arguments define the search, as before
-    4. ``-t 60`` indicates the walltime (minutes) of the scheduled job
-    5. ``-n 4`` requests four nodes on which to run the search.  DeepHyper will automatically scale the search out across available nodes.
-    6. ``-q Queue`` and ``-A Project`` pass the name of the job queue and project allocation to the HPC scheduler
-    7. ``-j`` or ``--job-mode`` must be either ``mpi`` or ``serial``.  This controls how Balsam launches your ``model_runs``.
+    2. The second positional argument **search** is one of the search algorithm available.
+    3. ``-w workflow`` must be a unique identifier for the run. An error will be raised if this workflow already exists.
+    4. ``--problem Problem`` and ``--run Run`` arguments define the search, as before
+    5. ``-t 60`` indicates the walltime (minutes) of the scheduled job
+    6. ``-n 4`` requests four nodes on which to run the search.  DeepHyper will automatically scale the search out across available nodes.
+    7. ``-q Queue`` and ``-A Project`` pass the name of the job queue and project allocation to the HPC scheduler
+    8. ``-j`` or ``--job-mode`` must be either ``mpi`` or ``serial``.  This controls how Balsam launches your ``model_runs``.
 
 Once the search is done, you will find results in the directory shown in the banner:
-``/myprojects/deephyper/deephyper/db/data/test_hps/test_hps_2ef063ce``.
+``/myprojects/deephyper/deephyper/db/data/polynome_exp1/polynome_exp1_2ef063ce``.
 
 .. note::
 
