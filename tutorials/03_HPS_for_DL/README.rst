@@ -1,4 +1,4 @@
-.. _tutorial-hps-deep-learning-basic:
+.. _tutorial-03:
 
 Hyperparameter Search for Deep Learning
 ***************************************
