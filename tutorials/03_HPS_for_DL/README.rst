@@ -25,13 +25,12 @@ Setting up the problem
     Be sure to work in a virtual environment where you can easily ``pip install`` new packages.
     This typically entails using either Anaconda, virtualenv, or Pipenv.
 
-Let's start by creating a new DeepHyper project workspace. This a directory where you will create
-search problem instances that are automatically installed and importable across your Python environment.
+Let's start by creating a new DeepHyper project workspace. This is a directory where you will create search problem instances that are automatically installed and importable across your Python environment.
 
 .. code-block:: console
     :caption: bash
 
-    $ deephyper start-project dh_project
+    deephyper start-project dh_project
 
 
 A new ``dh_project`` directory is created, containing the following files:
@@ -52,13 +51,12 @@ Let's set up an HPS problem called ``polynome2`` as follows:
 .. code-block:: console
     :caption: bash
 
-    $ cd dh_project/dh_project/
-    $ deephyper new-problem hps polynome2
+    cd dh_project/dh_project/
+    deephyper new-problem hps polynome2
 
 
 A new HPS problem subdirectory should be in place. This is a Python subpackage containing
-sample code in the files ``__init__.py``, ``load_data.py``, ``model_run.py``, and ``problem.py``.
-Overall, your project directory should look like:
+sample code in the files ``__init__.py``, ``load_data.py``, ``model_run.py``, and ``problem.py``. Overall, your project directory should look like:
 
 .. code-block::
 

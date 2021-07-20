@@ -1,6 +1,6 @@
 from deephyper.problem import NaProblem
-from nas_problems.polynome2.load_data import load_data
-from nas_problems.polynome2.search_space import create_search_space
+from dh_project.polynome2.load_data import load_data
+from dh_project.polynome2.search_space import create_search_space
 from deephyper.nas.preprocessing import minmaxstdscaler
 
 Problem = NaProblem(seed=2019)
@@ -18,16 +18,16 @@ Problem.hyperparameters(
     num_epochs=20,
     callbacks=dict(
         EarlyStopping=dict(
-            monitor="val_r2", mode="max", verbose=0, patience=5  # or 'val_acc' ?
+            monitor="val_r2", mode="max", verbose=0, patience=5
         )
     ),
 )
 
-Problem.loss("mse")  # or 'categorical_crossentropy' ?
+Problem.loss("mse")
 
-Problem.metrics(["r2"])  # or 'acc' ?
+Problem.metrics(["r2"])
 
-Problem.objective("val_r2__last")  # or 'val_acc__last' ?
+Problem.objective("val_r2__last")
 
 
 # Just to print your problem, to test its definition and imports in the current python environment.

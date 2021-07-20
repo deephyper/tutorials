@@ -1,5 +1,5 @@
-from nas_problems.polynome2.load_data import load_data
-from nas_problems.polynome2.search_space import create_search_space
+from dh_project.polynome2.load_data import load_data
+from dh_project.polynome2.search_space import create_search_space
 from deephyper.problem import NaProblem
 
 Problem = NaProblem()
