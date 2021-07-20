@@ -273,6 +273,33 @@ Run a search:
 .. code-block:: console
     :caption: bash
 
-    deephyper balsam-submit nas ambs -w polynome_nas --problem dh_project.polynome2.problem.Problem --run deephyper.nas.run.alpha.run -t 30 -q debug-cache-quad -n 4 -A datascience -j mpi
+    deephyper balsam-submit nas regevo -w polynome_nas --problem dh_project.polynome2.problem.Problem --run deephyper.nas.run.alpha.run -t 30 -q debug-cache-quad -n 4 -A $PROJECTNAME -j mpi
 
 When the search is done. You will find the results at ``expdb/data/polynome_nas/``.
+
+Running the search on ALCF's ThetaGPU with Ray
+==============================================
+
+DeepHyper provides the ``deephyper ray-submit`` command interface to automatically generate and submit a submission script for the COBALT scheduler of ThetaGPU. This interface follows some of the argument available with the ``qsub`` command such as ``-n`` (number of nodes), ``-t`` (time in minutes), ``-A`` (project name) and ``-q`` (queue name).
+
+Create a ``SetUpEnv.sh`` file which contains instructions to activate your Python environment:
+
+.. code-block:: bash
+    :caption: SetUpEnv.sh
+
+    #!/bin/bash
+
+    . /etc/profile
+
+    # Tensorflow optimized for A100 with CUDA 11
+    module load conda/tensorflow/2020-11-11
+
+    # Activate conda env
+    conda activate $PATH_TO_ENV/dhgpu/
+
+Then submit the job:
+
+.. code-block:: console
+    :caption: bash
+
+    deephyper ray-submit nas regevo -w polynome_nas -n 2 -t 60 -A $PROJECTNAME -q full-node --problem dh_project.polynome2.problem.Problem --run deephyper.nas.run.alpha.run --max-evals 200 --num-cpus-per-task 1 --num-gpus-per-task 1 -as $PATH_TO_SETUP --n-jobs 16
