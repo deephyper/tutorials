@@ -20,12 +20,12 @@ Let us start by creating a DeepHyper project and a problem for our application:
 .. code-block:: console
     :caption: bash
 
-    $ deephyper start-project dh_project
-    $ cd dh_project/dh_project/
-    $ deephyper new-problem hps advanced_hpo
-    $ cd rf_tuning/
+    deephyper start-project dh_project
+    cd dh_project/dh_project/
+    deephyper new-problem hps advanced_hpo
+    cd rf_tuning/
 
-Create a ``mapping.py`` script where you will record the classification algorithms of interest (``$ touch mapping.py`` in the terminal then edit the file):
+Create a ``mapping.py`` script where you will record the classification algorithms of interest (``touch mapping.py`` in the terminal then edit the file):
 
 .. literalinclude:: dh_project/dh_project/advanced_hpo/mapping.py
     :language: python
@@ -45,7 +45,7 @@ Run the script and record the training, validation, and test accuracy as follows
 .. code-block:: console
     :caption: bash
 
-    $ python default_configs.py
+    python default_configs.py
 
 Running the script will give the the following outputs:
 
@@ -84,7 +84,7 @@ To test this code:
 .. code-block:: console
     :caption: bash
 
-    $ python load_data.py
+    python load_data.py
 
 The expected output is:
 
@@ -111,7 +111,7 @@ Create ``problem.py`` to define the search space of hyperparameters for each mod
     :caption: advanced_hpo/problem.py
     :name: advanced_hpo-problem
 
-Run the ``problem.py`` with ``$ python problem.py`` in your shell. The output will be:
+Run the ``problem.py`` with ``python problem.py`` in your shell. The output will be:
 
 .. code-block:: python
     :caption: [Out]
@@ -140,7 +140,7 @@ Run the search for 20 model evaluations using the following command line:
 .. code-block:: console
     :caption: bash
 
-    $ deephyper hps ambs --problem dh_project.advanced_hpo.problem.Problem --run dh_project.advanced_hpo.model_run.run --max-evals 20 --evaluator ray --n-jobs 4
+    deephyper hps ambs --problem dh_project.advanced_hpo.problem.Problem --run dh_project.advanced_hpo.model_run.run --max-evals 20 --evaluator ray --n-jobs 4
 
 Once the search is over, the ``results.csv`` file contains the hyperparameters configurations evaluated during the search and their corresponding objective value (validation accuracy).
 Create ``best_config.py`` as given below. It will extract the best configuration from the ``results.csv`` and run it for the training, validation and test set.
