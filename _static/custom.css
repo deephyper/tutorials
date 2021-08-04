@@ -1,4 +1,5 @@
 /* Copy buttons */
+
 button.copybtn {
     webkit-transition: opacity .3s ease-in-out;
     -o-transition: opacity .3s ease-in-out;
@@ -8,13 +9,21 @@ button.copybtn {
     position: absolute;
     right: 4px;
     top: 4px;
-  }
-  div.highlight:hover .copybtn, div.highlight .copybtn:focus {
-      opacity: .3;
-  }
-  div.highlight .copybtn:hover {
-      opacity: 1;
-  }
-  div.highlight {
-      position: relative;
-  }
+}
+
+div.highlight:hover .copybtn,
+div.highlight .copybtn:focus {
+    opacity: .3;
+}
+
+div.highlight .copybtn:hover {
+    opacity: 1;
+}
+
+div.highlight {
+    position: relative;
+}
+
+div.admonition-todo {
+    color: red;
+}

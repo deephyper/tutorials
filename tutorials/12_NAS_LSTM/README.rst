@@ -53,10 +53,66 @@ sample code in the files ``__init__.py``, ``load_data.py``, ``search_space.py``,
                 problem.py
         setup.py
 
-Function modifications and training data
+.. Function modifications and training data
+.. =========================================
+
+.. The training data for this tutorial is provided in the tutorials repository on github in ``12_NAS_LSTM/dh_project/dh_project/lstm_search/`` and the ``load_data.py``, ``search_space.py``, ``problem.py`` files in the same location can be used to update the templates created in the previous step.
+
+Load the data
+=============
+
+.. todo:: explain how the data were created.
+
+Download the data:
+
+.. literalinclude:: dh_project/dh_project/lstm_search/download_data.sh
+    :caption: lstm_search/download_data.sh
+
+.. todo::
+
+    * why are the test data used as validation data?
+    * why is the preprocessing fit on both? Should be fit on trained data only?
+
+Transform and preprocess the data:
+
+.. literalinclude:: dh_project/dh_project/lstm_search/load_data.py
+    :caption: lstm_search/load_data.py
+
+Test the function with ``python load_data.py`` and get the following output:
+
+.. code-block::
+
+    Train Shapes:  (900, 8, 5) (900, 8, 5)
+    Valid Shapes:  (211, 8, 5) (211, 8, 5)
+
+
+Performance of a baseline LSTM
+==============================
+
+.. todo:: show the performance of a baseline lstm
+
+.. literalinclude:: dh_project/dh_project/lstm_search/baseline_lstm.py
+    :caption: lstm_search/baseline_lstm.py
+
+
+Define a neural architecture search space
 =========================================
 
-The training data for this tutorial is provided in the tutorials repository on github in ``12_NAS_LSTM/dh_project/dh_project/lstm_search/`` and the ``load_data.py``, ``search_space.py``, ``problem.py`` files in the same location can be used to update the templates created in the previous step.
+.. literalinclude:: dh_project/dh_project/lstm_search/search_space.py
+    :caption: lstm_search/search_space.py
+
+An example of a randomly generated architecture from this search space:
+
+.. image:: _static/random_model.png
+    :scale: 50 %
+    :alt: random model from stacked lstm search space
+    :align: center
+
+Create a problem instance
+=========================
+
+.. literalinclude:: dh_project/dh_project/lstm_search/problem.py
+    :caption: lstm_search/problem.py
 
 Execute the search locally
 ==========================
@@ -71,7 +127,7 @@ Everything is ready to run. Let's remember the structure of our experiment:
         problem.py
         search_space.py
 
-Each of these files can also tested one by one on the local machine (see ``04_NAS_basic`` tutorial for details). Next, we will run a random search (RDM).
+Each of these files can also be tested one by one on the local machine (see :ref:`tutorial-04` for details). Next, we will run a random search (RDM).
 
 .. code-block:: console
     :caption: bash
@@ -92,3 +148,24 @@ After the search is over, you will find the following files in your current fold
     results.csv
     save/
 
+.. todo::
+
+    * analyse the resutls of the search (plot + topk)
+    * shows the best model found
+
+.. code-block:: console
+    :caption: bash
+
+    deephyper-analytics topk results.csv -k 3 -o topk.json
+
+To visualize or use this best architecture you can recreated the Keras model this way:
+
+.. literalinclude:: dh_project/dh_project/lstm_search/best_model.py
+    :caption: lstm_search/best_model.py
+
+Then, execute the scrip ``python best_model.py`` and visualize the image produced:
+
+.. image:: _static/best_model.png
+    :scale: 50 %
+    :alt: best model found from stacked lstm search space
+    :align: center

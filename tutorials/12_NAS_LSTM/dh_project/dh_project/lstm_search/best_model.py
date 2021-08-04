@@ -1,6 +1,6 @@
 import json
 import tensorflow as tf
-from dh_project.polynome2.problem import Problem
+from dh_project.lstm_search.problem import Problem
 
 # Edit the path if necessary
 path_to_topk_json = "topk.json"
