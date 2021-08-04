@@ -3,6 +3,10 @@
 Hyperparameter Search for Machine Learning (Basic)
 **************************************************
 
+.. warning::
+
+    Be sure to work in a virtual environment where you can easily ``pip install`` new packages. This typically entails using either Anaconda, virtualenv, or Pipenv.
+
 In this tutorial, we will show how to tune the hyperparameters of the `Random Forest (RF) classifier <https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html>`_
 in `scikit-learn <https://scikit-learn.org/stable/>`_ for the Airlines data set.
 

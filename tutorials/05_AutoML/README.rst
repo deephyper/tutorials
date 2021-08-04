@@ -3,6 +3,10 @@
 Automated Machine Learning with Scikit-Learn
 ********************************************
 
+.. warning::
+
+    Be sure to work in a virtual environment where you can easily ``pip install`` new packages. This typically entails using either Anaconda, virtualenv, or Pipenv.
+
 In this tutorial, we will show how to automatically search among different machine learning algorithms from `Scikit-Learn <https://scikit-learn.org/stable/>`_. Automated machine learning only requires the user to link the data with a predifined problem and run function that we provide.
 
 Let us start by creating a DeepHyper project and a problem for our application:

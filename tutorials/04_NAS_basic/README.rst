@@ -11,7 +11,7 @@ In this tutorial we will learn the basis of neural architecture search (NAS). To
 
 
 Setting up the problem
-=======================
+======================
 
 Let's start by creating a new DeepHyper project workspace. This is a directory where you will create search problem instances that are automatically installed and importable across your Python environment.
 

@@ -3,6 +3,10 @@
 Hyperparameter Search for Deep Learning
 ***************************************
 
+.. warning::
+
+    Be sure to work in a virtual environment where you can easily ``pip install`` new packages. This typically entails using either Anaconda, virtualenv, or Pipenv.
+
 Every DeepHyper search requires at least 2 Python objects as input:
 
 * ``run``: your "black-box" function returning the objective value to be maximized.
@@ -18,12 +22,8 @@ Using HPS, we will then tune the model hyperparameters to optimize the validatio
 metric.
 
 Setting up the problem
-=======================
+======================
 
-.. note::
-
-    Be sure to work in a virtual environment where you can easily ``pip install`` new packages.
-    This typically entails using either Anaconda, virtualenv, or Pipenv.
 
 Let's start by creating a new DeepHyper project workspace. This is a directory where you will create search problem instances that are automatically installed and importable across your Python environment.
 
