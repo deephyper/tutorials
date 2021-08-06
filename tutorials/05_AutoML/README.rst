@@ -150,13 +150,13 @@ The ``results.csv`` file was created, to quickly visualize the best configuratio
     '0':
         C: null
         alpha: null
-        classifier: AdaBoost
-        elapsed_sec: 14.2178411484
+        elapsed_sec: 13.2827298641
         gamma: null
-        id: c5989aec-e966-11eb-82cd-acde48001122
+        id: 69179500-f68d-11eb-9007-acde48001122
         kernel: null
-        max_depth: null
-        n_estimators: 5.0
+        max_depth: 4.0
+        n_estimators: 90.0
         n_neighbors: null
-        objective: 0.9121408683
-        seed: 3530730298
+        objective: 0.8314073885
+        regressor: RandomForest
+        seed: 1603314780
