@@ -23,14 +23,13 @@ Let us start by creating a DeepHyper project and a problem for our application:
     deephyper start-project dh_project
     cd dh_project/dh_project/
     deephyper new-problem hps advanced_hpo
-    cd rf_tuning/
+    cd advanced_hpo/
 
 Create a ``mapping.py`` script where you will record the classification algorithms of interest (``touch mapping.py`` in the terminal then edit the file):
 
 .. literalinclude:: dh_project/dh_project/advanced_hpo/mapping.py
     :language: python
     :caption: advanced_hpo/mapping.py
-    :name: advanced_hpo-mapping
     :linenos:
 
 Create a script to test the accuracy of the default configuration for both the models:
@@ -38,7 +37,6 @@ Create a script to test the accuracy of the default configuration for both the m
 .. literalinclude:: dh_project/dh_project/advanced_hpo/default_configs.py
     :linenos:
     :caption: advanced_hpo/default_configs.py
-    :name: advanced_hpo-default_configs
 
 Run the script and record the training, validation, and test accuracy as follows:
 
@@ -74,7 +72,6 @@ Create ``load_data.py`` file to load and return training and validation data:
 .. literalinclude:: dh_project/dh_project/advanced_hpo/load_data.py
     :linenos:
     :caption: advanced_hpo/load_data.py
-    :name: advanced_hpo-load_data
 
 .. note::
     Subsampling with ``X_train, y_train = resample(X_train, y_train, n_samples=int(1e4))`` can be useful if you want to speed-up your search. By subsampling the training time will reduce.
@@ -102,14 +99,12 @@ This function has to return a scalar value (typically, validation accuracy), whi
 .. literalinclude:: dh_project/dh_project/advanced_hpo/model_run.py
     :linenos:
     :caption: advanced_hpo/model_run.py
-    :name: advanced_hpo-model_run
 
 Create ``problem.py`` to define the search space of hyperparameters for each model:
 
 .. literalinclude:: dh_project/dh_project/advanced_hpo/problem.py
     :linenos:
     :caption: advanced_hpo/problem.py
-    :name: advanced_hpo-problem
 
 Run the ``problem.py`` with ``python problem.py`` in your shell. The output will be:
 
@@ -148,7 +143,6 @@ Create ``best_config.py`` as given below. It will extract the best configuration
 .. literalinclude:: dh_project/dh_project/advanced_hpo/best_config.py
     :linenos:
     :caption: advanced_hpo/best_config.py
-    :name: advanced_hpo-best_config
 
 Compared to the default configuration, we can see the accuracy improvement in the validation and test data sets.
 
