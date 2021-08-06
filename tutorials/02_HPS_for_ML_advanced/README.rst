@@ -27,7 +27,7 @@ Let us start by creating a DeepHyper project and a problem for our application:
     deephyper start-project dh_project
     cd dh_project/dh_project/
     deephyper new-problem hps advanced_hpo
-    cd rf_tuning/
+    cd advanced_hpo/
 
 Create a ``mapping.py`` script where you will record the classification algorithms of interest (``touch mapping.py`` in the terminal then edit the file):
 
