@@ -3,7 +3,7 @@ from deepchem.molnet import load_delaney
 from dh_project.esol.data_utils import load_molnet_data
 
 
-def load_data(test=False, seed=2020, verbose=0):
+def load_data(test=False, seed=2020):
     """Load ESOL dataset
 
     Args:
@@ -45,10 +45,6 @@ def load_data(test=False, seed=2020, verbose=0):
         E_FEAT=E_FEAT,
     )
     if test:
-        if verbose:
-            print("Train Shapes: ", np.shape(X_train), np.shape(y_train))
-            print("Valid Shapes: ", np.shape(X_valid), np.shape(y_valid))
-            print("Test Shapes: ", np.shape(X_test), np.shape(y_test))
         return (
             (X_train, y_train),
             (X_valid, y_valid),
@@ -58,11 +54,9 @@ def load_data(test=False, seed=2020, verbose=0):
         )
 
     else:
-        if verbose:
-            print("Train Shapes: ", np.shape(X_train), np.shape(y_train))
-            print("Valid Shapes: ", np.shape(X_valid), np.shape(y_valid))
         return (X_train, y_train), (X_valid, y_valid)
 
 
 if __name__ == "__main__":
+    load_data(test=True)
     load_data(test=False)
