@@ -1,7 +1,7 @@
-.. _tutorial-04:
+.. _tutorial-14:
 
 Neural Architecture Search with multiple input tensors
-**********************************
+******************************************************
 
 .. warning::
 
@@ -109,7 +109,7 @@ The expected output is:
         - search space   : dh_project.multi_input_search.search_space.create_search_space
         - data loading   : dh_project.multi_input_search.load_data.load_data
         - preprocessing  : None
-        - hyperparameters: 
+        - hyperparameters:
             * verbose: 0
             * batch_size: 64
             * learning_rate: 0.001
@@ -117,7 +117,7 @@ The expected output is:
             * num_epochs: 200
             * callbacks: {'EarlyStopping': {'monitor': 'val_r2', 'mode': 'max', 'verbose': 0, 'patience': 5}, 'ModelCheckpoint': {'monitor': 'val_loss', 'mode': 'min', 'save_best_only': True, 'verbose': 0, 'filepath': 'model.h5', 'save_weights_only': False}}
         - loss           : mse
-        - metrics        : 
+        - metrics        :
             * r2
         - objective      : val_r2__last
         - post-training  : None
