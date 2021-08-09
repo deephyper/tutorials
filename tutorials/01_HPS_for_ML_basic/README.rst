@@ -20,6 +20,10 @@ Let us start by creating a DeepHyper project and a problem for our application:
     deephyper new-problem hps rf_tuning
     cd rf_tuning/
 
+.. note::
+
+    The ``deephyper new-problem ...`` command creates a sample folder to help you start faster by filling/replacing some example scripts.
+
 Create a script to test the accuracy of the baseline model:
 
 .. literalinclude:: dh_project/dh_project/rf_tuning/run_baseline.py
@@ -111,15 +115,8 @@ Run the search for 20 model evaluations using the following command line:
 Once the search is over, the ``results.csv`` file contains the hyperparameters configurations evaluated during the search and their corresponding objective value (validation accuracy).
 Create ``test_best_config.py`` as given belwo. It will extract the best configuration from the ``results.csv`` and run RF with it.
 
-.. code-block:: python
+.. literalinclude:: dh_project/dh_project/rf_tuning/test_best_config.py
     :caption: rf_tuning/test_best_config.py
-
-    import pandas as pd
-    from test_config import test_config
-
-    df = pd.read_csv("results.csv")
-    best_config = df.iloc[df.objective.argmax()][:-2].to_dict()
-    test_config(best_config)
 
 Compared to the default configuration, we can see the accuracy improvement in the validation and test data sets.
 

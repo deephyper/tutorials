@@ -1,10 +1,9 @@
 import numpy as np
 
-from sklearn.utils import resample
 from deephyper.benchmark.datasets import airlines as dataset
 
 
-def load_data():
+def load_data(verbose=0):
 
     # In this case passing a random state is critical to make sure
     # that the same data are loaded all the time and that the test set
@@ -40,4 +39,4 @@ def load_data():
 
 
 if __name__ == "__main__":
-    load_data()
+    load_data(verbose=1)

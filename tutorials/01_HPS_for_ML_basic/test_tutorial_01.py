@@ -33,3 +33,7 @@ def test_command():
     python_path = get_python_path()
     retval = os.system(f"PYTHONPATH={python_path} deephyper hps ambs --problem dh_project.rf_tuning.problem.Problem --run dh_project.rf_tuning.model_run.run --max-evals 2 --evaluator subprocess --n-jobs 4")
     assert retval == 0
+
+def test_best_config():
+    retval = execute("test_best_config.py")
+    assert retval == 0
