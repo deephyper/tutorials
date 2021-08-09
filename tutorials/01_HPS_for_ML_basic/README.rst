@@ -65,8 +65,8 @@ The expected output is:
 .. code-block:: python
     :caption: [Out]
 
-    X_train shape: (10000, 7)
-    y_train shape: (10000,)
+    X_train shape: (242128, 7)
+    y_train shape: (242128,)
     X_valid shape: (119258, 7)
     y_valid shape: (119258,)
 
