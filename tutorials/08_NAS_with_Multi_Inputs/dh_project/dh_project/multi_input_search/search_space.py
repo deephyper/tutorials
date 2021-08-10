@@ -2,101 +2,101 @@ import collections
 
 import tensorflow as tf
 
-from deephyper.nas.space import AutoKSearchSpace
+from deephyper.nas.space import KSearchSpace, SpaceFactory
 from deephyper.nas.space.node import ConstantNode, VariableNode
-from deephyper.nas.space.op.basic import Tensor
+from deephyper.nas.space.op import operation
+from deephyper.nas.space.op.basic import Zero
 from deephyper.nas.space.op.connect import Connect
 from deephyper.nas.space.op.merge import AddByProjecting
-from deephyper.nas.space.op.op1d import Dense, Identity
+from deephyper.nas.space.op.op1d import Identity
+
+Dense = operation(tf.keras.layers.Dense)
+Concatenate = operation(tf.keras.layers.Concatenate)
 
 
-def add_dense_to_(node):
-    node.add_op(Identity()) # we do not want to create a layer in this case
+class MultiInputsResNetMLPFactory(SpaceFactory):
+    def build(
+        self, input_shape=[(2,), (1,), (1,)], output_shape=(1,), num_layers=10, **kwargs
+    ):
 
-    activations = [None, tf.nn.relu, tf.nn.tanh, tf.nn.sigmoid]
-    for units in range(16, 97, 16):
-        for activation in activations:
-            node.add_op(Dense(units=units, activation=activation))
+        assert len(input_shape) == 3
 
+        self.ss = KSearchSpace(input_shape, output_shape)
 
-def create_search_space(input_shape=[(2,),(1,),(1,)],
-                        output_shape=(1,),
-                        num_layers=10,
-                        *args, **kwargs):
+        # Three input tensors
+        input_0, input_1, input_2 = self.ss.input_nodes
 
-    arch = AutoKSearchSpace(input_shape, output_shape, regression=True)
+        concat = ConstantNode(Concatenate())
+        self.ss.connect(input_0, concat)
+        self.ss.connect(input_1, concat)
+        self.ss.connect(input_2, concat)
 
-    # Three input tensors
-    source_0 = arch.input_nodes[0]
-    source_1 = arch.input_nodes[1]
-    source_2 = arch.input_nodes[2]
+        # Input anchors (recorded so they can be connected to anywhere
+        # in the architecture)
+        input_anchors = [input_1, input_2]
 
-    # input anchors (recorded so they can be connected to anywhere in the architecture)
-    input_anchors = collections.deque([source_1,source_2], maxlen=2)
+        # Creates a Queue to store outputs of the 3 previously created  layers
+        # to create potential residual connections
+        skip_anchors = collections.deque([input_0], maxlen=3)
 
-    # look over skip connections within a range of the 3 previous nodes
-    skip_anchors = collections.deque([source_0], maxlen=3)
-    prev_input = source_0
+        prev_input = concat
+        for _ in range(num_layers):
+            dense = VariableNode()
+            self.add_dense_to_(dense)
 
-    for _ in range(num_layers):
-        vnode = VariableNode()
-        add_dense_to_(vnode)
+            self.ss.connect(prev_input, dense)
 
-        arch.connect(prev_input, vnode)
+            # ConstantNode to merge possible residual connections from the different
+            # input tensors (input_0, input_1, input_2)
+            merge_0 = ConstantNode()
+            merge_0.set_op(AddByProjecting(self.ss, [dense], activation="relu"))
 
-        # * Cell output
-        cell_output = vnode
+            # Creates potential connections to the various input tensors
+            for anchor in input_anchors:
+                skipco = VariableNode()
+                skipco.add_op(Zero())
+                skipco.add_op(Connect(self.ss, anchor))
+                self.ss.connect(skipco, merge_0)
 
-        cmerge = ConstantNode()
-        cmerge.set_op(AddByProjecting(arch, [cell_output], activation='relu'))
+            # ConstantNode to merge possible
+            merge_1 = ConstantNode()
+            merge_1.set_op(AddByProjecting(self.ss, [merge_0], activation="relu"))
 
-        # a potential connection to the various input tensors
-        for anchor in input_anchors:
-            skipco = VariableNode()
-            skipco.add_op(Tensor([]))
-            skipco.add_op(Connect(arch, anchor))
-            arch.connect(skipco, cmerge)
+            # a potential connection to the variable nodes (vnodes) of the previous layers
+            for anchor in skip_anchors:
+                skipco = VariableNode()
+                skipco.add_op(Zero())
+                skipco.add_op(Connect(self.ss, anchor))
+                self.ss.connect(skipco, merge_1)
 
-        # ! for next iter
-        prev_input = cmerge
+            # ! for next iter
+            prev_input = merge_1
+            skip_anchors.append(prev_input)
 
-        cmerge = ConstantNode()
-        cmerge.set_op(AddByProjecting(arch, [prev_input], activation='relu'))
+        output_node = ConstantNode(Dense(output_shape[0]))
+        self.ss.connect(prev_input, output_node)
 
-        # a potential connection to the variable nodes (vnodes) of the previous layers
-        for anchor in skip_anchors:
-            skipco = VariableNode()
-            skipco.add_op(Tensor([]))
-            skipco.add_op(Connect(arch, anchor))
-            arch.connect(skipco, cmerge)
+        return self.ss
 
-        # ! for next iter
-        prev_input = cmerge
-        skip_anchors.append(prev_input)
+    def add_dense_to_(self, node):
+        node.add_op(Identity())  # we do not want to create a layer in this case
 
-    return arch
-
-
-def test_create_search_space():
-    """Generate a random neural network from the search_space definition.
-    """
-    from random import random
-    from tensorflow.keras.utils import plot_model
-    import tensorflow as tf
-
-    search_space = create_search_space(num_layers=3)
-    ops = [random() for _ in range(search_space.num_nodes)]
-
-    print(f'This search_space needs {len(ops)} choices to generate a neural network.')
-
-    search_space.set_ops(ops)
-
-    model = search_space.create_model()
-    model.summary()
-
-    plot_model(model, to_file='sampled_neural_network.png', show_shapes=True)
-    print("The sampled_neural_network.png file has been generated.")
+        activations = [
+            tf.keras.activations.linear,
+            tf.keras.activations.relu,
+            tf.keras.activations.tanh,
+            tf.keras.activations.sigmoid,
+        ]
+        for units in range(16, 97, 16):
+            for activation in activations:
+                node.add_op(Dense(units=units, activation=activation))
 
 
-if __name__ == '__main__':
-    test_create_search_space()
+def create_search_space(input_shape=[(2,), (1,), (1,)], output_shape=(1,), **kwargs):
+    return MultiInputsResNetMLPFactory()(input_shape, output_shape, **kwargs)
+
+
+if __name__ == "__main__":
+    shapes = dict(input_shape=[(2,), (1,), (1,)], output_shape=(1,))
+    factory = MultiInputsResNetMLPFactory()
+    factory.plot_model(**shapes, num_layers=4)

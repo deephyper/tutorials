@@ -1,16 +1,18 @@
 .. _tutorial-08:
 
-Neural Architecture Search with multiple input tensors
+Neural Architecture Search with Multiple Input Tensors
 ******************************************************
 
 .. warning::
 
     Be sure to work in a virtual environment where you can easily ``pip install`` new packages. This typically entails using either Anaconda, virtualenv, or Pipenv.
 
-In this tutorial we will extend on the previous basic NAS tutorial (Tutorial 4) to allow for varying numbers of input tensors. This calls for the construction of a novel search space where the different input tensors may be connected to any of the variable node operations within the search space. The data use for this tutorial is provided in this repository and is a multidelity surrogate modeling data set obtained from the Brannin function. In addition, to the independent variables for this modeling task, low and medium fidelity estimates of the output variable are used as additional inputs to the eventual high fidelity surrogate. Thus, this requires multiple input tensors which may independently or jointly interact with the neural architecture.
+    Some parts of this tutorial requires pydot (``pip install pydot``) and graphviz (see installation instructions at `https://graphviz.gitlab.io/download/ <https://graphviz.gitlab.io/download/>`_).
+
+In this tutorial we will extend on the previous basic NAS tutorial (:ref:`tutorial-04`) to allow for varying numbers of input tensors. This calls for the construction of a novel search space where the different input tensors may be connected to any of the variable node operations within the search space. The data use for this tutorial is provided in this repository and is a multidelity surrogate modeling data set obtained from the `Brannin function <https://www.sfu.ca/~ssurjano/branin.html>`_. In addition, to the independent variables for this modeling task, low and medium fidelity estimates of the output variable are used as additional inputs to the eventual high fidelity surrogate. Thus, this requires multiple input tensors which may independently or jointly interact with the neural architecture.
 
 Setting up the problem
-=======================
+======================
 
 Let's start by creating a new DeepHyper project workspace. This is a directory where you will create search problem instances that are automatically installed and importable across your Python environment.
 
@@ -49,7 +51,7 @@ sample code in the files ``__init__.py``, ``load_data.py``, ``search_space.py``,
     dh_project/
         dh_project/
             __init__.py
-            polynome2/
+            multi_input_search/
                 __init__.py
                 load_data.py
                 search_space.py
@@ -59,7 +61,13 @@ sample code in the files ``__init__.py``, ``load_data.py``, ``search_space.py``,
 Load the data
 =============
 
-First, we will look at the ``load_data.py`` file that loads and returns the training and validation data from the multifidelity Brannin function. This data set is provided in the tutorial repository.
+First, we will look at the ``load_data.py`` file that loads and returns the training and validation data from the multifidelity `Brannin function <https://www.sfu.ca/~ssurjano/branin.html>`_. This data set is provided in the `deephyper/tutorials repository <https://github.com/deephyper/tutorials>`_.
+
+.. literalinclude:: dh_project/dh_project/multi_input_search/load_data.py
+    :caption: multi_input_search/load_data.py
+    :linenos:
+
+The output interface of the ``load_data`` function is important when you have several inputs or outputs. In this case, for the inputs we have a list of 3 numpy arrays.
 
 Define a neural architecture search space
 =========================================
@@ -81,6 +89,8 @@ Visualize a randomly generated neural network from this search space:
     :scale: 50 %
     :alt: random model from regression search space
     :align: center
+
+You can notice the 3 inputs tensors (``input_0, input_1, input_2``).
 
 
 Create a problem instance
@@ -105,22 +115,22 @@ The expected output is:
 .. code-block:: console
 
     Problem is:
-     * SEED = 2019 *
-        - search space   : dh_project.multi_input_search.search_space.create_search_space
-        - data loading   : dh_project.multi_input_search.load_data.load_data
-        - preprocessing  : None
-        - hyperparameters:
-            * verbose: 0
-            * batch_size: 64
-            * learning_rate: 0.001
-            * optimizer: adam
-            * num_epochs: 200
-            * callbacks: {'EarlyStopping': {'monitor': 'val_r2', 'mode': 'max', 'verbose': 0, 'patience': 5}, 'ModelCheckpoint': {'monitor': 'val_loss', 'mode': 'min', 'save_best_only': True, 'verbose': 0, 'filepath': 'model.h5', 'save_weights_only': False}}
-        - loss           : mse
-        - metrics        :
-            * r2
-        - objective      : val_r2__last
-        - post-training  : None
+    * SEED = 2019 *
+    - search space   : dh_project.multi_input_search.search_space.create_search_space
+    - data loading   : dh_project.multi_input_search.load_data.load_data
+    - preprocessing  : None
+    - hyperparameters:
+        * verbose: 0
+        * batch_size: 64
+        * learning_rate: 0.001
+        * optimizer: adam
+        * num_epochs: 200
+        * callbacks: {'EarlyStopping': {'monitor': 'val_r2', 'mode': 'max', 'verbose': 0, 'patience': 5}, 'ModelCheckpoint': {'monitor': 'val_loss', 'mode': 'min', 'save_best_only': True, 'verbose': 0, 'filepath': 'model.h5', 'save_weights_only': False}}
+    - loss           : mse
+    - metrics        :
+        * r2
+    - objective      : val_r2
+    - post-training  : None
 
 
 Execute the search locally
