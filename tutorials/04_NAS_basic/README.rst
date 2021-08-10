@@ -7,6 +7,8 @@ Neural Architecture Search (Basic)
 
     Be sure to work in a virtual environment where you can easily ``pip install`` new packages. This typically entails using either Anaconda, virtualenv, or Pipenv.
 
+    Some parts of this tutorial requires pydot (``pip install pydot``) and graphviz (see installation instructions at `https://graphviz.gitlab.io/download/ <https://graphviz.gitlab.io/download/>`_).
+
 In this tutorial we will learn the basis of neural architecture search (NAS). To do so, we will use artificial data generated from a polynomial function. Then, we will discover how to create a search space of neural architecture using a directed graph. Finally, we will see how to define the NAS settings and how to execute the search.
 
 
