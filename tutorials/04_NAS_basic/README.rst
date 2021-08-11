@@ -201,7 +201,7 @@ Now, let us check more precisely the Top-3 bests architectures found:
 
     deephyper-analytics topk results.csv -k 3
 
-Which outpout the following:
+Which output the following:
 
 .. code-block:: yaml
 
