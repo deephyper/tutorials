@@ -11,6 +11,7 @@ Tutorials
    tutorials/notebooks/02_HPS_for_ML_advanced/tutorial_02.ipynb
    tutorials/notebooks/03_HPS_for_DL/tutorial_03.ipynb
    tutorials/notebooks/04_NAS_basic/tutorial_04.ipynb
+   tutorials/notebooks/05_AutoML/tutorial_05.ipynb
 
 .. toctree::
    :caption: Scripts
