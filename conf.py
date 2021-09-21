@@ -44,6 +44,7 @@ extensions = [
     "nbsphinx",
     "sphinx_book_theme",
     "sphinx_copybutton",
+    "sphinx_togglebutton"
 ]
 
 # List of patterns, relative to source directory, that match files and

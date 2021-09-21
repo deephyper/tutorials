@@ -14,18 +14,11 @@ Tutorials
    tutorials/notebooks/05_AutoML/tutorial_05.ipynb
 
 .. toctree::
-   :caption: Scripts
-   :titlesonly:
-   :numbered:
-   :glob:
-
-   tutorials/scripts/*_*/README
-
-.. toctree::
    :caption: Argonne Leadership Computing Facility (ALCF)
    :titlesonly:
    :numbered:
    :glob:
 
-   tutorials/alcf/*_*/README
+   tutorials/alcf/01_Theta/README
+   tutorials/alcf/02_ThetaGPU/README
 
