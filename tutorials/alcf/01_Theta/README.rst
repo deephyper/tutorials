@@ -34,11 +34,11 @@ When logging in **Theta** you are located on a **login node**. From this node yo
 
 When using DeepHyper, one can use two different strategies to distribute the computation of evaluations on the supercomputer:
 
-1. **Intra-node evaluations**: many evaluations can be launched in parallel but each of them only uses the ressources of at most one node (e.g., one neural network training per node).
-2. **Inter-node evaluations**: many evaluations can be launched in parallel and each of them can use the ressources of multiple nodes.
+1. **1 evaluation per node**: many evaluations can be launched in parallel but each of them only uses the ressources of at most one node (e.g., one neural network training per node).
+2. **1 evaluation per multiple nodes**: many evaluations can be launched in parallel and each of them can use the ressources of multiple nodes.
 
-Strategy 1 - Intra-node evaluations
-===================================
+Strategy 1 - 1 evaluation per node
+==================================
 
 .. todo::
 
@@ -175,8 +175,8 @@ Then add the following content:
     This can be more practical to use this approach when integrating DeepHyper in a different workflow.
 
 
-Strategy 2: inter-node evaluation
-=================================
+Strategy 2 - 1 evaluation per multiple nodes
+============================================
 
 The Ray workers are launch on the head node this time. This will allow us to use MPI inside our run-function.
 

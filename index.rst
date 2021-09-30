@@ -1,8 +1,10 @@
 Tutorials
 =========
 
+Notebooks
+---------
+
 .. toctree::
-   :caption: Notebooks
    :titlesonly:
    :numbered:
    :glob:
@@ -13,12 +15,14 @@ Tutorials
    tutorials/notebooks/04_NAS_basic/tutorial_04.ipynb
    tutorials/notebooks/05_AutoML/tutorial_05.ipynb
 
+
+Argonne Leadership Computing Facility (ALCF)
+--------------------------------------------
+
 .. toctree::
-   :caption: Argonne Leadership Computing Facility (ALCF)
    :titlesonly:
    :numbered:
    :glob:
 
    tutorials/alcf/01_Theta/README
    tutorials/alcf/02_ThetaGPU/README
-
