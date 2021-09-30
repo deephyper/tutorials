@@ -12,9 +12,12 @@
 Execution on the ThetaGPU supercomputer
 ***************************************
 
-In this tutorial we are going to learn how to use DeepHyper on the **ThetaGPU** supercomputer at the ALCF. `ThetaGPU <https://www.alcf.anl.gov/support-center/theta/theta-thetagpu-overview>`_ is a 3.9 petaflops system based on NVIDIA DGX A100. It is composed of:
+In this tutorial we are going to learn how to use DeepHyper on the **ThetaGPU** supercomputer at the ALCF. `ThetaGPU <https://www.alcf.anl.gov/support-center/theta/theta-thetagpu-overview>`_ is a 3.9 petaflops system based on NVIDIA DGX A100. To execute DeepHyper on ThetaGPU it is required to:
 
-Then create a script named ``init-dh-environment.sh``:
+1. Define a Bash script to initialize the environment (e.g., load a module, activate a conda environment).
+2. Define a script composed of 3 steps: (1) launch a Ray cluster on available ressources, (2) execute a Python application which connects to the Ray cluster, and (3) stop the Ray cluster.
+
+Start by creating a script named ``init-dh-environment.sh`` to initialize your environment. It will be used to initialize each used compute node. Replacec the ``$CONDA_ENV_PATH`` by your personnal conda installation (e.g., it can be replaced by ``base`` if no virtual environment is used):
 
 
 .. code-block:: bash
@@ -39,10 +42,22 @@ Then create a script named ``init-dh-environment.sh``:
     - To change the log level of Tensorflow add ``export TF_CPP_MIN_LOG_LEVEL=3``
 
 
+Then create a new file named ``deephyper-job.qsub`` and make it executable. It will correspond to your submission script.
+
+.. code-block:: bash
+
+    $ touch deephyper-job.qsub && chmod +x deephyper-job.qsub
+
+Add the following content:
+
 .. code-block:: bash
     :caption: **file**: ``deephyper-job.qsub``
 
-    #!/bin/bash +x
+    #!/bin/bash
+    #COBALT -A $PROJECT_NAME
+    #COBALT -n 2
+    #COBALT -q full-node
+    #COBALT -t 60
 
     # User Configuration
     EXP_DIR=$PWD
@@ -113,3 +128,30 @@ Then create a script named ``init-dh-environment.sh``:
 
     # Stop de Ray cluster
     ssh -tt $head_node_ip "source $INIT_SCRIPT && ray stop"
+
+Edit the ``#COBALT ...`` directives:
+
+.. code-block:: bash
+
+    #COBALT -A $PROJECT_NAME
+    #COBALT -n 2
+    #COBALT -q full-node
+    #COBALT -t 60
+
+and adapt the executed Python application depending on your needs:
+
+.. code-block:: bash
+
+    ssh -tt $head_node_ip "source $INIT_SCRIPT && cd $EXP_DIR && \
+        deephyper hps ambs \
+        --problem deephyper.benchmark.nas.linearRegHybrid.Problem \
+        --evaluator ray \
+        --run-function deephyper.nas.run.quick.run \
+        --ray-address auto \
+        --ray-num-cpus-per-task 1"
+
+Finally, submit the script from a ThetaGPU login node (e.g., ``thetagpusn1``):
+
+.. code-block:: bash
+
+    qsub deephyper-job.qsub
