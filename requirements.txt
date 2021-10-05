@@ -1,4 +1,6 @@
 Sphinx>=1.8.2
-sphinx_rtd_theme
+sphinx-book-theme
 pytest
 nbsphinx
+ipython
+sphinx-togglebutton

@@ -2,16 +2,7 @@ Tutorials
 =========
 
 .. toctree::
-   :caption: Notebooks
-   :numbered:
-   :glob:
+   :maxdepth: 2
 
-   tutorials/01_HPS_for_ML_basic/tutorial_01.ipynb
-
-.. toctree::
-   :caption: Scripts
-   :titlesonly:
-   :numbered:
-   :glob:
-
-   tutorials/*_*/README
+   tutorials/notebooks/index
+   Argonne LCF <tutorials/alcf/index>
