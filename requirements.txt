@@ -3,4 +3,5 @@ sphinx-book-theme
 pytest
 nbsphinx
 ipython
+sphinx-copybutton
 sphinx-togglebutton

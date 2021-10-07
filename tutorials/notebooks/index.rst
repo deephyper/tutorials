@@ -11,3 +11,4 @@ Notebooks
    03_HPS_for_DL/tutorial_03.ipynb
    04_NAS_basic/tutorial_04.ipynb
    05_AutoML/tutorial_05.ipynb
+   06_NAS_with_Multi_Inputs/tutorial_06.ipynb
