@@ -7,8 +7,7 @@ Notebooks
    :glob:
 
    01_HPS_basic_classification_with_tabular_data/tutorial_01.ipynb
-   02_HPS_for_ML_advanced/tutorial_02.ipynb
-   03_HPS_for_DL/tutorial_03.ipynb
-   04_NAS_basic/tutorial_04.ipynb
-   05_AutoML/tutorial_05.ipynb
-   06_NAS_with_Multi_Inputs/tutorial_06.ipynb
+   02_HPS_Reduce_Overfitting_ML/tutorial_02.ipynb
+   03_NAS_basic/tutorial_03.ipynb
+   04_AutoML_with_Sklearn/tutorial_04.ipynb
+   05_NAS_with_Multi_Inputs/tutorial_05.ipynb
