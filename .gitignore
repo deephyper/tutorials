@@ -138,3 +138,4 @@ _build/
 *.csv
 *.npz
 .DS_Store
+*.png
