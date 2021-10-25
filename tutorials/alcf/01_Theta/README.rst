@@ -1,26 +1,5 @@
 .. _tutorial-alcf-01:
 
-.. important::
-
-    **Tutorial under construction!**
-
-
-.. warning::
-
-    Be sure to work in a virtual environment where you can easily ``pip install`` new packages. This typically entails using either Anaconda, virtualenv, or Pipenv. If you followed the standard DeepHyper installation procedure you can simply activate the created Conda environment.
-
-.. admonition:: Storage/File Systems
-    :class: dropdown, important
-
-    It is important to run the following commands from the appropriate storage space because some features of DeepHyper can generate a consequante quantity of data such as model checkpointing. The storage spaces available at the ALCF are:
-
-    - ``/lus/grand/projects/``
-    - ``/lus/eagle/projects/``
-    - ``/lus/theta-fs0/projects/``
-
-    For more details refer to `ALCF Documentation <https://www.alcf.anl.gov/support-center/theta/theta-file-systems>`_.
-
-
 Execution on the Theta supercomputer
 ************************************
 
@@ -34,26 +13,53 @@ When logging in **Theta** you are located on a **login node**. From this node yo
 
 When using DeepHyper, one can use two different strategies to distribute the computation of evaluations on the supercomputer:
 
-1. **1 evaluation per node**: many evaluations can be launched in parallel but each of them only uses the ressources of at most one node (e.g., one neural network training per node).
-2. **1 evaluation per multiple nodes**: many evaluations can be launched in parallel and each of them can use the ressources of multiple nodes.
+1. :ref:`theta-n-evaluation-per-1-node`: many evaluations can be launched in parallel but each of them only uses the ressources of at most one node (e.g., one neural network training per node).
+2. :ref:`theta-1-evaluation-per-n-node`: many evaluations can be launched in parallel and each of them can use the ressources of multiple nodes.
 
-Strategy 1 - 1 evaluation per node
-==================================
+.. admonition:: About the Storage/File Systems
+    :class: dropdown, important
 
-.. todo::
+    It is important to run DeepHyper from the appropriate storage space because some features can generate a consequante quantity of data such as model checkpointing. The storage spaces available at the ALCF are:
 
-    add example scripts (``run`` and ``problem``).
+    - ``/lus/grand/projects/``
+    - ``/lus/eagle/projects/``
+    - ``/lus/theta-fs0/projects/``
 
-In this strategy, many evaluations can be launched in parallel but each of them only uses the ressources of at most one node. For example, you can train one neural network per node. In this case, we will (1) start by launching a Ray cluster accross all compute node, then we will (2) start the search process on one of them and send tasks to previously instanciated workers.
+    For more details refer to `ALCF Documentation <https://www.alcf.anl.gov/support-center/theta/theta-file-systems>`_.
 
-For this, it is required to define a shell script which will initialize the environment of each compute node. One way to initialize your environment could be to use the ``~/.bashrc`` or ``~/.bash_profile`` which are called at the beginning of each session. However, if you want to have different installations depending on your experimentations it is preferable to avoid activating globally each installation but instead activate them only when necessary. To that end, we will create the ``init-dh-environment.sh`` script which will be called to initialize each compute node:
+
+Submission Script
+=================
+
+.. _theta-n-evaluation-per-1-node:
+
+N-evaluation per 1-node
+-----------------------
+
+In this strategy, ``N``-evaluations can be launched per available compute node. Therefore, each evaluation uses the ressources of at most one node. For example, you can train one neural network per node, or two neural networks per node. In this case, we will (1) start by launching a Ray cluster accross all available compute nodes, then we will (2) execute the search on one of them and send tasks to previously instanciated workers.
+
+Let us start by defining a toy hyperparameter search. Create a script named ``myscript.py`` and add the following content in it:
+
+.. code-block:: python
+
+    from deephyper.problem import HpProblem
+
+    # define the run-function to evaluation a given hyperparameter configuration
+    # here we simply want to maximise a polynomial function
+    def run(config: dict):
+        return -config["x"]**2
+
+    # define the variable(s) you want to optimize
+    problem = HpProblem()
+    problem.add_hyperparameter((-10.0, 10.0), "x")
+
+Then, it is required to define a shell script which will initialize the environment of each compute node. One way to initialize your environment could be to use the ``~/.bashrc`` or ``~/.bash_profile`` which are called at the beginning of each session. However, if you want to have different installations depending on your experimentations it is preferable to avoid activating globally each installation but instead activate them only when necessary. To that end, we will create the ``init-dh-environment.sh`` script which will be called to initialize each compute node:
 
 .. code-block:: console
 
-    touch init-dh-environment.sh
-    chmod +x init-dh-environment.sh
+    $ touch init-dh-environment.sh && chmod +x init-dh-environment.sh
 
-Once created and executable you can add the following content in it (e.g. ``vim init-dh-environment.sh``):
+Once created and executable you can add the following content in it (e.g. ``vim init-dh-environment.sh``) and do not forget to adapt the ``$PROJECT_NAME`` with your project's allocation:
 
 .. code-block:: bash
     :caption: **file**: ``init-dh-environment.sh``
@@ -66,62 +72,97 @@ Once created and executable you can add the following content in it (e.g. ``vim 
     module load miniconda-3
 
     # Activate installed conda environment with DeepHyper
-    conda activate /lus/grand/projects/datascience/regele/theta/test/dhcpu/
+    conda activate $PATH_TO_CONDA_WITH_DEEPHYPER
 
-Once the ``init-dh-environment.sh`` is created we need to define a submission script. The goal of this script is to (1) request a given amount of ressources, (2) launch a Ray cluster accross all compute nodes, (3) execute a DeepHyper task which distribute the computation on the Ray workers. Create a ``deephyper-job.qsub`` script:
+    # We had the directory where "myscript.py" is located to be able
+    # to access it during the search
+    export PYTHONPATH=$MYSCRIPT_DIR:$PYTHONPATH
 
-.. code-block::
+Adapt the two variables ``$PATH_TO_CONDA_WITH_DEEPHYPER`` and ``$MYSCRIPT_DIR``. Once the ``init-dh-environment.sh`` is created we need to define a submission script. The goal of this script is to (1) request a given amount of ressources, (2) launch a Ray cluster accross all compute nodes, (3) execute a DeepHyper task which distribute the computation on the Ray workers. Create a folder ``exp/`` where to store your experiments. Then create a script named ``deephyper-job.qsub``:
 
-    mkdir exp && cd exp/
-    touch deephyper-job.qsub
+.. code-block:: console
 
-Then add the following content:
+    $ mkdir exp && cd exp/
+    $ touch deephyper-job.qsub && chmod +x deephyper-job.qsub
+
+Then add the following content to ``deephyper-job.qsub``:
 
 .. code-block:: bash
 
     #!/bin/bash
-    #COBALT -A datascience
+    #COBALT -A $PROJECT_NAME
     #COBALT -n 2
     #COBALT -q debug-flat-quad
-    #COBALT -t 30
+    #COBALT -t 60
     #COBALT --attrs enable_ssh=1
 
     # User Configuration
     EXP_DIR=$PWD
-    INIT_SCRIPT=$PWD/init-dh-environment.sh
+    INIT_SCRIPT=$PWD/../init-dh-environment.sh
+    CPUS_PER_NODE=2
 
-    # Initialize the head node
+    # Initialize environment
     source $INIT_SCRIPT
 
-    # Collect IP addresses of compute nodes
-    nodes_array=($(python -m deephyper.core.cli.nodelist theta $COBALT_PARTNAME | grep -P '\[.*\]' | tr -d '[],'))
-    HEAD_NODE_IP=${nodes_array[0]}
-    WORKER_NODES_IPS=${nodes_array[@]:1}
+    # Getting the node names
+    nodes_array=($(python -m deephyper.core.cli._nodelist theta $COBALT_PARTNAME | grep -P '\[.*\]' | tr -d '[],'))
 
-    # Create YAML configuration for the Ray cluster
-    # Each compute node will have 2 Ray workers (--num-cpus 2)
-    deephyper ray-cluster config --init $INIT_SCRIPT --head-node-ip $HEAD_NODE_IP --worker-nodes-ips ${WORKER_NODES_IPS[@]} --num-cpus 2 -v
+    head_node=${nodes_array[0]}
+    head_node_ip=$(eval "getent hosts $head_node"| awk {'print $1'})
 
-    # Launch the Ray cluster
-    ray up ray-config.yaml -y
+    # Starting the Ray Head Node
+    port=6379
+    ip_head=$head_node_ip:$port
+    export ip_head
+    echo "IP Head: $ip_head"
+
+    echo "Starting HEAD at $head_node"
+    ssh -tt $head_node_ip "source $INIT_SCRIPT; cd $EXP_DIR; \
+        ray start --head --node-ip-address=$head_node_ip --port=$port \
+        --num-cpus $CPUS_PER_NODE --block" &
+
+    # optional, though may be useful in certain versions of Ray < 1.0.
+    sleep 10
+
+    # number of nodes other than the head node
+    worker_num=$((${#nodes_array[*]} - 1))
+    echo "$worker_num workers"
+
+    for ((i = 1; i <= worker_num; i++)); do
+        node_i=${nodes_array[$i]}
+        node_i_ip=$(eval "getent hosts $node_i"| awk {'print $1'})
+        echo "Starting WORKER $i at $node_i with ip=$node_i_ip"
+        ssh -tt $node_i_ip "source $INIT_SCRIPT; cd $EXP_DIR; \
+            ray start --address $ip_head \
+            --num-cpus $CPUS_PER_NODE --block" &
+        sleep 5
+    done
 
     # Execute the DeepHyper Task
     # Here the task is an hyperparameter search using the DeepHyper CLI
     # However it is also possible to call a Python script using different
     # Features from DeepHyper (see following notes)
-    ssh $HEAD_NODE_IP "source $INIT_SCRIPT; cd $EXP_DIR; \
+    ssh -tt $head_node_ip "source $INIT_SCRIPT && cd $EXP_DIR && \
         deephyper hps ambs \
-        --problem deephyper.benchmark.nas.linearRegHybrid.Problem \
+        --problem myscript.problem \
         --evaluator ray \
-        --run-function deephyper.nas.run.quick.run \
+        --run-function myscript.run \
         --ray-address auto \
-        --ray-num-cpus-per-task 1
+        --ray-num-cpus-per-task 1"
 
-    ray down ray-config.yaml -y
 
 .. warning::
 
     The ``#COBALT --attrs enable_ssh=1`` is crucial otherwise ``ssh`` calls will be blocked by the system.
+
+    Don't forget to adapt the ``COBALT`` variables to your needs:
+
+    .. code-block:: console
+
+            #COBALT -A $PROJECT_NAME
+            #COBALT -n 2
+            #COBALT -q debug-flat-quad
+            #COBALT -t 60
 
 .. tip::
 
@@ -129,7 +170,7 @@ Then add the following content:
 
     .. code-block:: console
 
-        qsub -n 2 -q debug-flat-quad -t 30 -A datascience \
+        qsub -n 2 -q debug-flat-quad -t 60 -A $PROJECT_NAME \
             --attrs enable_ssh=1 \
             deephyper-job.qsub
 
@@ -175,8 +216,14 @@ Then add the following content:
     This can be more practical to use this approach when integrating DeepHyper in a different workflow.
 
 
-Strategy 2 - 1 evaluation per multiple nodes
-============================================
+.. _theta-1-evaluation-per-N-node:
+
+1-evaluation per N-node
+-----------------------
+
+.. important::
+
+    **Section under construction!**
 
 The Ray workers are launch on the head node this time. This will allow us to use MPI inside our run-function.
 

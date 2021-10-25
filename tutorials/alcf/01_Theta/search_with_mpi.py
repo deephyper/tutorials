@@ -92,7 +92,6 @@ def test_run_mpi():
 
 def execute_deephyper():
 
-    from deephyper.evaluator import Evaluator
     from deephyper.evaluator.callback import LoggerCallback
     from deephyper.problem import HpProblem
     from deephyper.search.hps import AMBS
