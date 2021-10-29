@@ -53,7 +53,7 @@ Add the following content:
     #COBALT -A $PROJECT_NAME
     #COBALT -n 2
     #COBALT -q full-node
-    #COBALT -t 60
+    #COBALT -t 20
 
     # User Configuration
     EXP_DIR=$PWD
@@ -61,7 +61,7 @@ Add the following content:
     CPUS_PER_NODE=8
     GPUS_PER_NODE=8
 
-    # Initialize environment
+    # Initialization of environment
     source $INIT_SCRIPT
 
     # Getting the node names
@@ -69,18 +69,6 @@ Add the following content:
 
     head_node=${nodes_array[0]}
     head_node_ip=$(dig $head_node a +short | awk 'FNR==2')
-
-    # if we detect a space character in the head node IP, we'll
-    # convert it to an ipv4 address. This step is optional.
-    if [[ "$head_node_ip" == *" "* ]]; then
-    IFS=' ' read -ra ADDR <<<"$head_node_ip"
-    if [[ ${#ADDR[0]} -gt 16 ]]; then
-    head_node_ip=${ADDR[1]}
-    else
-    head_node_ip=${ADDR[0]}
-    fi
-    echo "IPV6 address detected. We split the IPV4 address as $head_node_ip"
-    fi
 
     # Starting the Ray Head Node
     port=6379
@@ -93,10 +81,10 @@ Add the following content:
         ray start --head --node-ip-address=$head_node_ip --port=$port \
         --num-cpus $CPUS_PER_NODE --num-gpus $GPUS_PER_NODE --block" &
 
-    # optional, though may be useful in certain versions of Ray < 1.0.
+    # Optional, though may be useful in certain versions of Ray < 1.0.
     sleep 10
 
-    # number of nodes other than the head node
+    # Number of nodes other than the head node
     worker_num=$((${#nodes_array[*]} - 1))
     echo "$worker_num workers"
 
@@ -110,17 +98,20 @@ Add the following content:
         sleep 5
     done
 
-    # Execute the DeepHyper Task
-    # Here the task is an hyperparameter search using the DeepHyper CLI
-    # However it is also possible to call a Python script using different
-    # Features from DeepHyper (see following notes)
+    # Check the status of the Ray cluster
+    ssh -tt $head_node_ip "source $INIT_SCRIPT && ray status"
+
+    # Run the search
     ssh -tt $head_node_ip "source $INIT_SCRIPT && cd $EXP_DIR && \
-        deephyper hps ambs \
+        deephyper nas random \
         --problem deephyper.benchmark.nas.linearRegHybrid.Problem \
         --evaluator ray \
-        --run-function deephyper.nas.run.quick.run \
+        --run-function deephyper.nas.run.run_base_trainer \
+        --num-workers -1 \
         --ray-address auto \
-        --ray-num-cpus-per-task 1"
+        --ray-num-cpus-per-task 1 \
+        --ray-num-gpus-per-task 1 \
+        --verbose 1"
 
     # Stop de Ray cluster
     ssh -tt $head_node_ip "source $INIT_SCRIPT && ray stop"
@@ -132,19 +123,22 @@ Edit the ``#COBALT ...`` directives:
     #COBALT -A $PROJECT_NAME
     #COBALT -n 2
     #COBALT -q full-node
-    #COBALT -t 60
+    #COBALT -t 20
 
 and adapt the executed Python application depending on your needs:
 
 .. code-block:: bash
 
     ssh -tt $head_node_ip "source $INIT_SCRIPT && cd $EXP_DIR && \
-        deephyper hps ambs \
+        deephyper nas random \
         --problem deephyper.benchmark.nas.linearRegHybrid.Problem \
         --evaluator ray \
-        --run-function deephyper.nas.run.quick.run \
+        --run-function deephyper.nas.run.run_base_trainer \
+        --num-workers -1 \
         --ray-address auto \
-        --ray-num-cpus-per-task 1"
+        --ray-num-cpus-per-task 1 \
+        --ray-num-gpus-per-task 1 \
+        --verbose 1"
 
 Finally, submit the script from a ThetaGPU login node (e.g., ``thetagpusn1``):
 
@@ -152,13 +146,17 @@ Finally, submit the script from a ThetaGPU login node (e.g., ``thetagpusn1``):
 
     qsub deephyper-job.qsub
 
+.. note::
+
+    The ``ssh -tt $head_node_ip "source $INIT_SCRIPT && ray status"`` command is used to check the good initialization of the Ray cluster. Once the job starts running, check the ``*.output`` file and verify that the number of detected GPUs is correct.
+
 Jupyter Notebook
 ================
 
 This section of the tutorial will show you how to run an interactive Jupyter notebook on ThetaGPU. After logging in Theta:
 
-1. From a `thetalogin` node: `ssh thetagpusn1` to login to a ThetaGPU service node.
-2. From `thetagpusn1`, start an interactive job (**note** which `thetagpuXX` node you get placed onto will vary) by replacing your ``$PROJECT_NAME`` and ``$QUEUE_NAME`` (e.g. of available queues are ``full-node`` and ``single-gpu``):
+1. From a ``thetalogin`` node: ``ssh thetagpusn1`` to login to a ThetaGPU service node.
+2. From ``thetagpusn1``, start an interactive job (**note** which ``thetagpuXX`` node you get placed onto will vary) by replacing your ``$PROJECT_NAME`` and ``$QUEUE_NAME`` (e.g. of available queues are ``full-node`` and ``single-gpu``):
 
 .. code-block:: console
 
@@ -204,5 +202,3 @@ This section of the tutorial will show you how to run an interactive Jupyter not
     $ ssh -tt -L 8888:localhost:8888 $USERNAME@theta.alcf.anl.gov "ssh -L 8888:localhost:8888 thetagpuXX"
 
 7. Open the Jupyter URL (`http:localhost:8888/?token=....`) in a local browser. This URL was printed out at step 4.
-
-
