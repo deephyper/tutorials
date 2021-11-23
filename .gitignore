@@ -139,3 +139,4 @@ _build/
 *.npz
 .DS_Store
 *.png
+*.h5
