@@ -1,5 +1,5 @@
 Notebooks
----------
+=========
 
 .. toctree::
    :titlesonly:
