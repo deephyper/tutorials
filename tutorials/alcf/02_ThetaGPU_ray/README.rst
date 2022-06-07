@@ -1,9 +1,9 @@
 .. _tutorial-alcf-02:
 
-Execution on the ThetaGPU supercomputer
-***************************************
+Execution on the ThetaGPU supercomputer (with Ray)
+**************************************************
 
-In this tutorial we are going to learn how to use DeepHyper on the **ThetaGPU** supercomputer at the ALCF. `ThetaGPU <https://www.alcf.anl.gov/support-center/theta/theta-thetagpu-overview>`_ is a 3.9 petaflops system based on NVIDIA DGX A100.
+In this tutorial we are going to learn how to use DeepHyper on the **ThetaGPU** supercomputer at the ALCF using Ray. `ThetaGPU <https://www.alcf.anl.gov/support-center/theta/theta-thetagpu-overview>`_ is a 3.9 petaflops system based on NVIDIA DGX A100.
 
 Submission Script
 =================
@@ -25,7 +25,7 @@ Start by creating a script named ``init-dh-environment.sh`` to initialize your e
     . /etc/profile
 
     # Tensorflow optimized for A100 with CUDA 11
-    module load conda/2021-09-22
+    module load conda/2021-11-30
 
     # Activate conda env
     conda activate $CONDA_ENV_PATH
@@ -54,6 +54,7 @@ Add the following content:
     #COBALT -n 2
     #COBALT -q full-node
     #COBALT -t 20
+    #COBALT --attrs filesystems=home,grand,eagle,theta-fs0
 
     # User Configuration
     EXP_DIR=$PWD
@@ -102,16 +103,7 @@ Add the following content:
     ssh -tt $head_node_ip "source $INIT_SCRIPT && ray status"
 
     # Run the search
-    ssh -tt $head_node_ip "source $INIT_SCRIPT && cd $EXP_DIR && \
-        deephyper nas random \
-        --problem deephyper.benchmark.nas.linearRegHybrid.Problem \
-        --evaluator ray \
-        --run-function deephyper.nas.run.run_base_trainer \
-        --num-workers -1 \
-        --ray-address auto \
-        --ray-num-cpus-per-task 1 \
-        --ray-num-gpus-per-task 1 \
-        --verbose 1"
+    ssh -tt $head_node_ip "source $INIT_SCRIPT && cd $EXP_DIR && python myscript.py"
 
     # Stop de Ray cluster
     ssh -tt $head_node_ip "source $INIT_SCRIPT && ray stop"
@@ -124,21 +116,13 @@ Edit the ``#COBALT ...`` directives:
     #COBALT -n 2
     #COBALT -q full-node
     #COBALT -t 20
+    #COBALT --attrs filesystems=home,grand,eagle,theta-fs0
 
 and adapt the executed Python application depending on your needs:
 
-.. code-block:: bash
+.. code-block:: python
 
-    ssh -tt $head_node_ip "source $INIT_SCRIPT && cd $EXP_DIR && \
-        deephyper nas random \
-        --problem deephyper.benchmark.nas.linearRegHybrid.Problem \
-        --evaluator ray \
-        --run-function deephyper.nas.run.run_base_trainer \
-        --num-workers -1 \
-        --ray-address auto \
-        --ray-num-cpus-per-task 1 \
-        --ray-num-gpus-per-task 1 \
-        --verbose 1"
+    myscript.py
 
 Finally, submit the script from a ThetaGPU login node (e.g., ``thetagpusn1``):
 
