@@ -7,17 +7,16 @@ In this tutorial we are going to learn how to run an interactive Jupyter noteboo
 
 After logging in Theta:
 
-1. From a ``thetalogin`` node: ``ssh thetagpusn1`` to login to a ThetaGPU service node.
-2. From ``thetagpusn1``, start an interactive job (**note** which ``thetagpuXX`` node you get placed onto will vary) by replacing your ``$PROJECT_NAME`` and ``$QUEUE_NAME`` (e.g. of available queues are ``full-node`` and ``single-gpu``):
+1. From ``thetaloginX``, start an interactive job (**note** which ``thetagpuXX`` node you get placed onto will vary) by replacing your ``$PROJECT_NAME`` and ``$QUEUE_NAME`` (e.g. of available queues are ``full-node`` and ``single-gpu``):
 
 .. code-block:: console
 
-    (thetagpusn1) $ qsub -I -A $PROJECT_NAME -n 1 -q $QUEUE_NAME -t 60
+    (thetalogin5) $ qsub -I -A $PROJECT_NAME -n 1 -q $QUEUE_NAME -t 60
     Job routed to queue "full-node".
     Wait for job 10003623 to start...
     Opening interactive session to thetagpu21
 
-3. Wait for the interactive session to start. Then, from the ThetaGPU compute node (`thetagpuXX`), execute the following commands to initialize your DeepHyper environment (adapt to your needs):
+2. Wait for the interactive session to start. Then, from the ThetaGPU compute node (`thetagpuXX`), execute the following commands to initialize your DeepHyper environment (adapt to your needs):
 
 .. code-block:: console
 
@@ -25,7 +24,7 @@ After logging in Theta:
     $ module load conda/2021-09-22
     $ conda activate $CONDA_ENV_PATH
 
-4. Then, start the Jupyter notebook server:
+3. Then, start the Jupyter notebook server:
 
 .. code-block:: console
 

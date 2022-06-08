@@ -108,81 +108,76 @@ Add the following content:
     # Stop de Ray cluster
     ssh -tt $head_node_ip "source $INIT_SCRIPT && ray stop"
 
-Edit the ``#COBALT ...`` directives:
+.. note::
 
-.. code-block:: bash
+    .. code-block:: bash
 
-    #COBALT -A $PROJECT_NAME
-    #COBALT -n 2
-    #COBALT -q full-node
-    #COBALT -t 20
-    #COBALT --attrs filesystems=home,grand,eagle,theta-fs0
+        #COBALT --attrs filesystems=home,grand,eagle,theta-fs0
+    
+    The ``filesystems`` attribute corresponds to the filesystems your application should have access to, DeepHyper only requires ``home`` and ``theta-fs0``, and it is unnecessary to let in this list a filesystem your application (and DeepHyper) doesn't need.
 
-and adapt the executed Python application depending on your needs:
+Adapt the executed Python application depending on your needs. Here is an application axample of ``CBO`` using the ``ray`` evaluator:
 
 .. code-block:: python
+    :caption: **file**: ``myscript.py``
 
-    myscript.py
+    import pathlib
+    import os
 
-Finally, submit the script from a ThetaGPU login node (e.g., ``thetagpusn1``):
+    os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
+
+    import numpy as np
+
+    from deephyper.evaluator import Evaluator
+    from deephyper.search.hps import CBO
+    from deephyper.evaluator.callback import ProfilingCallback
+
+    from deephyper.problem import HpProblem
+
+
+    hp_problem = HpProblem()
+    hp_problem.add_hyperparameter((-10.0, 10.0), "x")
+
+    def run(config):
+        return - config["x"]**2
+
+    timeout = 10
+    search_log_dir = "results/cbo/"
+    pathlib.Path(search_log_dir).mkdir(parents=False, exist_ok=True)
+
+    # Evaluator creation
+    print("Creation of the Evaluator...")
+    evaluator = Evaluator.create(
+        run,
+        method="ray",
+        method_kwargs={
+            "adress": "auto",
+            "num_gpus_per_task": 1,
+        }
+    )
+    print(f"Creation of the Evaluator done with {evaluator.num_workers} worker(s)")
+
+    # Search creation
+    print("Creation of the search instance...")
+    search = CBO(
+        hp_problem,
+        evaluator,
+    )
+    print("Creation of the search done")
+
+    # Search execution
+    print("Starting the search...")
+    results = search.search(timeout=timeout)
+    print("Search is done")
+
+    results.to_csv(os.path.join(search_log_dir, f"results.csv"))
+
+Finally, submit the script using:
 
 .. code-block:: bash
 
-    qsub deephyper-job.qsub
+    qsub-gpu deephyper-job.qsub
 
 .. note::
 
     The ``ssh -tt $head_node_ip "source $INIT_SCRIPT && ray status"`` command is used to check the good initialization of the Ray cluster. Once the job starts running, check the ``*.output`` file and verify that the number of detected GPUs is correct.
-
-Jupyter Notebook
-================
-
-This section of the tutorial will show you how to run an interactive Jupyter notebook on ThetaGPU. After logging in Theta:
-
-1. From a ``thetalogin`` node: ``ssh thetagpusn1`` to login to a ThetaGPU service node.
-2. From ``thetagpusn1``, start an interactive job (**note** which ``thetagpuXX`` node you get placed onto will vary) by replacing your ``$PROJECT_NAME`` and ``$QUEUE_NAME`` (e.g. of available queues are ``full-node`` and ``single-gpu``):
-
-.. code-block:: console
-
-    (thetagpusn1) $ qsub -I -A $PROJECT_NAME -n 1 -q $QUEUE_NAME -t 60
-    Job routed to queue "full-node".
-    Wait for job 10003623 to start...
-    Opening interactive session to thetagpu21
-
-3. Wait for the interactive session to start. Then, from the ThetaGPU compute node (`thetagpuXX`), execute the following commands to initialize your DeepHyper environment (adapt to your needs):
-
-.. code-block:: console
-
-    $ . /etc/profile
-    $ module load conda/2021-09-22
-    $ conda activate $CONDA_ENV_PATH
-
-4. Then, start the Jupyter notebook server:
-
-.. code-block:: console
-
-    $ jupyter notebook &
-
-.. note::
-
-    In the case of a multi-GPUs node, it is possible that the Jupyter notebook process will lock one of the available GPUs. Therefore, launch the notebook with the following command instead:
-
-    .. code-block:: console
-
-        CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6 jupyter notebook &
-
-4. Take note of the hostname of the current compute node (e.g. ``thetagpuXX``):
-
-.. code-block:: console
-
-    echo $HOSTNAME
-
-5. Leave the interactive session running and open a new terminal window on your local machine.
-
-6. In the new terminal window, execute the SSH command to link the local port to the ThetaGPU compute node after replacing with you ``$USERNAME`` and corresponding ``thetagpuXX``:
-
-.. code-block:: console
-
-    $ ssh -tt -L 8888:localhost:8888 $USERNAME@theta.alcf.anl.gov "ssh -L 8888:localhost:8888 thetagpuXX"
-
-7. Open the Jupyter URL (`http:localhost:8888/?token=....`) in a local browser. This URL was printed out at step 4.
