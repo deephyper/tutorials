@@ -13,11 +13,11 @@ This section of the tutorial will show you how to submit script to the COBALT sc
 1. Define a Bash script to initialize the environment (e.g., load a module, activate a conda environment).
 2. Define a script composed of 3 steps: (1) launch a Ray cluster on available ressources, (2) execute a Python application which connects to the Ray cluster, and (3) stop the Ray cluster.
 
-Start by creating a script named ``init-dh-environment.sh`` to initialize your environment. It will be used to initialize each used compute node. Replace the ``$CONDA_ENV_PATH`` by your personnal conda installation (e.g., it can be replaced by ``base`` if no virtual environment is used):
+Start by creating a script named ``activate-dhenv.sh`` to initialize your environment. It will be used to initialize each used compute node. Replace the ``$CONDA_ENV_PATH`` by your personnal conda installation (e.g., it can be replaced by ``base`` if no virtual environment is used):
 
 
 .. code-block:: bash
-    :caption: **file**: ``init-dh-environment.sh``
+    :caption: **file**: ``activate-dhenv.sh``
 
     #!/bin/bash
 
@@ -32,33 +32,33 @@ Start by creating a script named ``init-dh-environment.sh`` to initialize your e
 
 .. tip::
 
-    This ``init-dh-environment`` script can be very useful to tailor the execution's environment to your needs. Here are a few tips that can be useful:
+    This ``activate-dhenv`` script can be very useful to tailor the execution's environment to your needs. Here are a few tips that can be useful:
 
     - To activate XLA optimized compilation add ``export TF_XLA_FLAGS=--tf_xla_enable_xla_devices``
     - To change the log level of Tensorflow add ``export TF_CPP_MIN_LOG_LEVEL=3``
 
 
-Then create a new file named ``deephyper-job.qsub`` and make it executable. It will correspond to your submission script.
+Then create a new file named ``job-deephyper.sh`` and make it executable. It will correspond to your submission script.
 
 .. code-block:: bash
 
-    $ touch deephyper-job.qsub && chmod +x deephyper-job.qsub
+    $ touch job-deephyper.sh && chmod +x job-deephyper.sh
 
 Add the following content:
 
 .. code-block:: bash
-    :caption: **file**: ``deephyper-job.qsub``
+    :caption: **file**: ``job-deephyper.sh``
 
     #!/bin/bash
-    #COBALT -A $PROJECT_NAME
-    #COBALT -n 2
     #COBALT -q full-node
+    #COBALT -n 2
     #COBALT -t 20
+    #COBALT -A $PROJECT_NAME
     #COBALT --attrs filesystems=home,grand,eagle,theta-fs0
 
     # User Configuration
     EXP_DIR=$PWD
-    INIT_SCRIPT=$PWD/init-dh-environment.sh
+    INIT_SCRIPT=$PWD/activate-dhenv.sh
     CPUS_PER_NODE=8
     GPUS_PER_NODE=8
 
@@ -86,10 +86,10 @@ Add the following content:
     sleep 10
 
     # Number of nodes other than the head node
-    worker_num=$((${#nodes_array[*]} - 1))
-    echo "$worker_num workers"
+    nodes_num=$((${#nodes_array[*]} - 1))
+    echo "$nodes_num nodes"
 
-    for ((i = 1; i <= worker_num; i++)); do
+    for ((i = 1; i <= nodes_num; i++)); do
         node_i=${nodes_array[$i]}
         node_i_ip=$(dig $node_i a +short | awk 'FNR==1')
         echo "Starting WORKER $i at $node_i with ip=$node_i_ip"
@@ -110,13 +110,39 @@ Add the following content:
 
 .. note::
 
+    About the *COBALT* directives :
+
+    .. code-block:: bash
+
+        #COBALT -q full-node
+    
+    The queue your job will be submitted to. For ThetaGPU it can either be ``single-gpu``, ``full-node``, or ``bigmem`` ; you can find here the `specificities of these queues <https://www.alcf.anl.gov/support-center/theta-gpu-nodes/job-and-queue-scheduling-thetagpu#gpu-queues>`_.
+
+    .. code-block:: bash
+
+        #COBALT -n 2
+    
+    The number of nodes your job will be submitted to.
+    
+    .. code-block:: bash
+
+        #COBALT -t 20
+    
+    The duration of the job submission, in minutes.
+    
+    .. code-block:: bash
+
+        #COBALT -A $PROJECT_NAME
+    
+    Your current project, e-g ``#COBALT -A datascience``:
+
     .. code-block:: bash
 
         #COBALT --attrs filesystems=home,grand,eagle,theta-fs0
     
-    The ``filesystems`` attribute corresponds to the filesystems your application should have access to, DeepHyper only requires ``home`` and ``theta-fs0``, and it is unnecessary to let in this list a filesystem your application (and DeepHyper) doesn't need.
+    The filesystems your application should have access to, DeepHyper only requires ``home`` and ``theta-fs0``, and it is unnecessary to let in this list a filesystem your application (and DeepHyper) doesn't need.
 
-Adapt the executed Python application depending on your needs. Here is an application axample of ``CBO`` using the ``ray`` evaluator:
+Adapt the executed Python application depending on your needs. Here is an application example of ``CBO`` using the ``ray`` evaluator:
 
 .. code-block:: python
     :caption: **file**: ``myscript.py``
@@ -142,7 +168,7 @@ Adapt the executed Python application depending on your needs. Here is an applic
         return - config["x"]**2
 
     timeout = 10
-    search_log_dir = "results/cbo/"
+    search_log_dir = "search_log/"
     pathlib.Path(search_log_dir).mkdir(parents=False, exist_ok=True)
 
     # Evaluator creation
@@ -176,7 +202,7 @@ Finally, submit the script using:
 
 .. code-block:: bash
 
-    qsub-gpu deephyper-job.qsub
+    qsub-gpu job-deephyper.sh
 
 .. note::
 

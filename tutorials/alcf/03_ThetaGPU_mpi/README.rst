@@ -13,11 +13,11 @@ This section of the tutorial will show you how to submit script to the COBALT sc
 1. Define a Bash script to initialize the environment (e.g., load a module, activate a conda environment).
 2. Define an execution script, which will call the bash script defined in 1. and launch the python script using ``mpirun``.
 
-Start by creating a script named ``init-dh-environment.sh`` to initialize your environment. Replace the ``$CONDA_ENV_PATH`` by your personnal conda installation (e.g., it can be replaced by ``base`` if no virtual environment is used):
+Start by creating a script named ``activate-dhenv.sh`` to initialize your environment. Replace the ``$CONDA_ENV_PATH`` by your personnal conda installation (e.g., it can be replaced by ``base`` if no virtual environment is used):
 
 
 .. code-block:: bash
-    :caption: **file**: ``init-dh-environment.sh``
+    :caption: **file**: ``activate-dhenv.sh``
 
     #!/bin/bash
 
@@ -32,33 +32,29 @@ Start by creating a script named ``init-dh-environment.sh`` to initialize your e
 
 .. tip::
 
-    This ``init-dh-environment`` script can be very useful to tailor the execution's environment to your needs. Here are a few tips that can be useful:
+    This ``activate-dhenv`` script can be very useful to tailor the execution's environment to your needs. Here are a few tips that can be useful:
 
     - To activate XLA optimized compilation add ``export TF_XLA_FLAGS=--tf_xla_enable_xla_devices``
     - To change the log level of Tensorflow add ``export TF_CPP_MIN_LOG_LEVEL=3``
 
-
-Then create a new file named ``deephyper-job.qsub`` and make it executable. It will correspond to your submission script.
-
-.. code-block:: bash
-
-    $ touch deephyper-job.qsub && chmod +x deephyper-job.qsub
-
-Add the following content (adapt ``$PROJECT_NAME`` to your current project, e-g ``#COBALT -A datascience``):
+Then create a new file named ``job-deephyper.sh`` and make it executable. It will correspond to your submission script.
 
 .. code-block:: bash
-    :caption: **file**: ``deephyper-job.qsub``
+
+    $ touch job-deephyper.sh && chmod +x job-deephyper.sh
+
+.. code-block:: bash
+    :caption: **file**: ``job-deephyper.sh``
 
     #!/bin/bash
-    #COBALT -A $PROJECT_NAME
-    #COBALT -n 2
     #COBALT -q full-node
+    #COBALT -n 2
     #COBALT -t 20
+    #COBALT -A $PROJECT_NAME
     #COBALT --attrs filesystems=home,grand,eagle,theta-fs0
 
     # User Configuration
-    EXP_DIR=$PWD
-    INIT_SCRIPT=$PWD/init-dh-environment.sh
+    INIT_SCRIPT=$PWD/activate-dhenv.sh
     COBALT_JOBSIZE=2
     RANKS_PER_NODE=8
 
@@ -69,11 +65,37 @@ Add the following content (adapt ``$PROJECT_NAME`` to your current project, e-g 
 
 .. note::
 
+    About the *COBALT* directives :
+
+    .. code-block:: bash
+
+        #COBALT -q full-node
+    
+    The queue your job will be submitted to. For ThetaGPU it can either be ``single-gpu``, ``full-node``, or ``bigmem`` ; you can find here the `specificities of these queues <https://www.alcf.anl.gov/support-center/theta-gpu-nodes/job-and-queue-scheduling-thetagpu#gpu-queues>`_.
+
+    .. code-block:: bash
+
+        #COBALT -n 2
+    
+    The number of nodes your job will be submitted to.
+    
+    .. code-block:: bash
+
+        #COBALT -t 20
+    
+    The duration of the job submission, in minutes.
+    
+    .. code-block:: bash
+
+        #COBALT -A $PROJECT_NAME
+    
+    Your current project, e-g ``#COBALT -A datascience``:
+
     .. code-block:: bash
 
         #COBALT --attrs filesystems=home,grand,eagle,theta-fs0
     
-    The ``filesystems`` attribute corresponds to the filesystems your application should have access to, DeepHyper only requires ``home`` and ``theta-fs0``, and it is unnecessary to let in this list a filesystem your application (and DeepHyper) doesn't need.
+    The filesystems your application should have access to, DeepHyper only requires ``home`` and ``theta-fs0``, and it is unnecessary to let in this list a filesystem your application (and DeepHyper) doesn't need.
 
 .. note::
 
@@ -84,7 +106,7 @@ Add the following content (adapt ``$PROJECT_NAME`` to your current project, e-g 
 
     ``COBALT_JOBSIZE`` and ``RANKS_PER_NODE`` correspond respectively to the number of nodes allocated and number of process per node. Unlike ``Theta`` on which ``COBALT_JOBSIZE`` is automatically instanciated to the correct value, on ``ThetaGPU`` it has to be done by hand : ``COBALT_JOBSIZE`` should always correspond to the number of nodes you submitted your application to (the number after ``#COBALT -n``). e-g if you were to happen to have a ``#COBALT -n 4`` you should have ``COBALT_JOBSIZE=4``.
 
-Adapt the executed Python application depending on your needs. Here is an application axample of ``CBO`` using the ``mpi_comm`` evaluator:
+Adapt the executed Python application depending on your needs. Here is an application example of ``CBO`` using the ``mpi_comm`` evaluator:
 
 .. code-block:: python
     :caption: **file**: ``myscript.py``
@@ -122,7 +144,7 @@ Adapt the executed Python application depending on your needs. Here is an applic
         return - config["x"]**2
 
     timeout = 10
-    search_log_dir = "results/cbo/"
+    search_log_dir = "search_log/"
     pathlib.Path(search_log_dir).mkdir(parents=False, exist_ok=True)
 
     if rank == 0:
@@ -153,7 +175,7 @@ Adapt the executed Python application depending on your needs. Here is an applic
 
 .. note::
 
-    To ensure that each worker is restricted to its own gpu (and doesn't access other workers memory) you might need to add this to your script:
+    If you are using tensorflow, you might want to add this snippet to your script in order to ensure that each worker is restricted to its own gpu (and doesn't access other workers memory) :
 
     .. code-block:: python
 
@@ -177,10 +199,10 @@ Adapt the executed Python application depending on your needs. Here is an applic
                 # Visible devices must be set before GPUs have been initialized
                 logging.info(f"{e}") 
     
-    With ``gpu_per_node`` being equal to the ``RANKS_PER_NODE`` specified in the submission script.
+    With ``gpu_per_node`` being equal to the ``RANKS_PER_NODE`` value specified in ``job-deephyper.sh``.
 
 Finally, submit the script using :
 
 .. code-block:: bash
 
-    qsub-gpu deephyper-job.qsub
+    qsub-gpu job-deephyper.sh
