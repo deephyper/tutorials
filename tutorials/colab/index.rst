@@ -1,5 +1,5 @@
 Colab
------
+=====
 
 .. toctree::
    :titlesonly:
