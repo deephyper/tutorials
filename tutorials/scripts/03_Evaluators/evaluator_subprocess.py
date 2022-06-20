@@ -1,15 +1,15 @@
-from deephyper.evaluator import SubprocessEvaluator
+from deephyper.evaluator import Evaluator
 from ackley import run
-from common import NUM_WORKERS, execute_search, plot_sum_up
+from common import NUM_WORKERS, evaluate_and_plot
 
-SEARCH_TIMEOUT = 20
+SEARCH_TIMEOUT = 60
 
-suprocess_evaluator = SubprocessEvaluator(
+evaluator = Evaluator.create(
     run,
-    num_workers=NUM_WORKERS,
+    method='subprocess',
+    method_kwargs=dict(
+        num_workers=NUM_WORKERS,
+    )
 )
 
-results, init_duration = execute_search(suprocess_evaluator, SEARCH_TIMEOUT)
-results.to_csv("results.csv")
-
-plot_sum_up("suprocess_evaluator")
+evaluate_and_plot(evaluator, SEARCH_TIMEOUT, "subprocess_evaluator")

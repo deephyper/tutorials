@@ -1,15 +1,15 @@
-from deephyper.evaluator import ThreadPoolEvaluator
+from deephyper.evaluator import Evaluator
 from ackley import run
-from common import NUM_WORKERS, execute_search, plot_sum_up
+from common import NUM_WORKERS, evaluate_and_plot
 
-SEARCH_TIMEOUT = 120
+SEARCH_TIMEOUT = 20
 
-thread_evaluator = ThreadPoolEvaluator(
+evaluator = Evaluator.create(
     run,
-    num_workers=NUM_WORKERS,
+    method='thread',
+    method_kwargs=dict(
+        num_workers=NUM_WORKERS,
+    )
 )
 
-results, init_duration = execute_search(thread_evaluator, SEARCH_TIMEOUT)
-results.to_csv("results.csv")
-
-plot_sum_up("thread_evaluator")
+evaluate_and_plot(evaluator, SEARCH_TIMEOUT, "thread_evaluator")

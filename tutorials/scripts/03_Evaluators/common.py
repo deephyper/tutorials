@@ -21,8 +21,9 @@ def execute_search(evaluator, timeout):
     )
 
     results = search.search(timeout=timeout)
+    results.to_csv("results.csv")
 
-    return results, init_duration
+    return init_duration
 
 
 def get_profile_from_hist(hist):
@@ -95,3 +96,10 @@ def plot_sum_up(name):
     fig.text(0.6, -0.2, f"runs_perc_util: {100*runs_perc_util:.1f}%", fontsize=12)
     fig.tight_layout()
     plt.savefig(f"plots/{name}.jpg", bbox_inches='tight')
+
+
+def evaluate_and_plot(evaluator, timeout, name):
+
+    init_duration = execute_search(evaluator, timeout)
+
+    plot_sum_up(name)

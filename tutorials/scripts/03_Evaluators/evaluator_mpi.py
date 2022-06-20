@@ -2,18 +2,15 @@ from mpi4py import MPI
 comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
 
-from deephyper.evaluator import MPICommEvaluator
+from deephyper.evaluator import Evaluator
 from ackley import run
-from common import execute_search, plot_sum_up
+from common import evaluate_and_plot
 
 SEARCH_TIMEOUT = 20
 
-mpi_evaluator = MPICommEvaluator(
+with Evaluator.create(
     run,
-)
-
-results, init_duration = execute_search(mpi_evaluator, SEARCH_TIMEOUT)
-
-if rank == 0:
-    results.to_csv("results.csv")
-    plot_sum_up("mpi_evaluator")
+    method='mpicomm',
+) as evaluator:
+    if evaluator is not None :
+        evaluate_and_plot(evaluator, SEARCH_TIMEOUT, "mpi_evaluator")
