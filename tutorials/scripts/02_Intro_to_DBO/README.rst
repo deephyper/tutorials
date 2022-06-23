@@ -1,5 +1,5 @@
-Introduction to DBO
-===================
+Introduction to Asynchronous Distributed Bayesian Optimization (DBO)
+====================================================================
 
 **Author(s)**: Joceran Gouneau & Romain Egele.
 

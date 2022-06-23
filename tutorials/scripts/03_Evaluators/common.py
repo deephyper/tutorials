@@ -18,10 +18,7 @@ def execute_search(evaluator):
     evaluator.timestamp = t
 
     search = CBO(
-        hp_problem,
-        evaluator,
-        surrogate_model="DUMMY",
-        filter_duplicated=False
+        hp_problem, evaluator, surrogate_model="DUMMY", filter_duplicated=False
     )
 
     results = search.search(timeout=SEARCH_TIMEOUT)
@@ -48,14 +45,14 @@ def get_perc_util(profile):
         csum += (profile.loc[i + 1, "t"] - profile.loc[i, "t"]) * profile.loc[
             i, "n_processes"
         ]
-    perc_util = csum / (profile['t'].iloc[-1] * 6)
+    perc_util = csum / (profile["t"].iloc[-1] * 6)
     return perc_util
 
 
 def plot_profile(ax, profile, ylabel="None", color="blue"):
     ax.step(profile["t"], profile["n_processes"], where="post", color=color)
     ax.set_ylabel(ylabel)
-    ax.set_ylim(0, NUM_WORKERS+1)
+    ax.set_ylim(0, NUM_WORKERS + 1)
     ax.yaxis.set_major_locator(ticker.MultipleLocator(1))
     ax.grid()
 
@@ -97,10 +94,22 @@ def plot_sum_up(name, init_duration):
     fig.text(0.1, -0.1, f"init_duration: {init_duration:.2f}s.", fontsize=12)
     fig.text(0.1, -0.2, f"job_avrg_duration: {job_avrg_duration:.2f}s.", fontsize=12)
     fig.text(0.1, -0.3, f"total_num_eval: {total_num_eval}", fontsize=12)
-    fig.text(0.6, -0.1, f"jobs_perc_util: {100*jobs_perc_util:.1f}%", fontsize=12, color='blue')
-    fig.text(0.6, -0.2, f"runs_perc_util: {100*runs_perc_util:.1f}%", fontsize=12, color='crimson')
+    fig.text(
+        0.6,
+        -0.1,
+        f"jobs_perc_util: {100*jobs_perc_util:.1f}%",
+        fontsize=12,
+        color="blue",
+    )
+    fig.text(
+        0.6,
+        -0.2,
+        f"runs_perc_util: {100*runs_perc_util:.1f}%",
+        fontsize=12,
+        color="crimson",
+    )
     fig.tight_layout()
-    plt.savefig(f"plots/{name}.jpg", bbox_inches='tight')
+    plt.savefig(f"plots/{name}.jpg", bbox_inches="tight")
 
 
 def evaluate_and_plot(evaluator, name):

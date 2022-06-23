@@ -5,10 +5,10 @@ if __name__ == "__main__":
 
     evaluator = Evaluator.create(
         run,
-        method='serial',
+        method="serial",
         method_kwargs=dict(
             num_workers=NUM_WORKERS,
-        )
+        ),
     )
 
     evaluate_and_plot(evaluator, "serial_evaluator")
