@@ -44,7 +44,6 @@ We define a simple search receiving the chosen ``evaluator`` as well as the ``hp
    ``DUMMY`` is a surrogate model performing random search, meaning there is no time lost in fitting a model to the new evaluations. The parameter ``filter_duplicated=False`` makes it possible to re-generate already evaluated configurations, thus saving the time of of checking for duplicated configurations. These choices were made to minimize as much as possible the overheads of search algorithm (reduce the amount of mixed effects) in order to better highlight the overhead due to the choice of ``Evaluator``.
 
 .. code-block:: python
-   :caption: **file**: ``common.py``
 
    search = CBO(
         hp_problem,
@@ -56,10 +55,22 @@ We define a simple search receiving the chosen ``evaluator`` as well as the ``hp
     results = search.search(timeout=SEARCH_TIMEOUT)
     results.to_csv("results.csv")
 
+This search instance is defined along with the functions used to evaluate the performances and plot the insights of an evaluator's execution in a ``common.py`` python script :
+
+.. literalinclude:: common.py
+   :language: python
+   :caption: **file**: ``common.py``
+
 The output : profile plots and insights
 ________________________________________
 
-For each ``Evaluator`` type we will present a "profile" plot such as:
+To execute a certain evaluator, you just have to run :
+
+.. code-block:: console
+
+   python evaluator_{type}.py
+
+Except for MPI, which execution depends on your machine and your installation. This will generate a "profile" plot in the ``plots/`` directory such as:
 
 .. image:: plots/profile_example.jpg
    :scale: 80 %
