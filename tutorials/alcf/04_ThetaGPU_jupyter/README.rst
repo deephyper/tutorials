@@ -21,7 +21,7 @@ After logging in Theta:
 .. code-block:: console
 
     $ . /etc/profile
-    $ module load conda/2021-09-22
+    $ module load conda/2022-07-01
     $ conda activate $CONDA_ENV_PATH
 
 3. Then, start the Jupyter notebook server:

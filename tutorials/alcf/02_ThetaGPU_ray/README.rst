@@ -25,7 +25,7 @@ Start by creating a script named ``activate-dhenv.sh`` to initialize your enviro
     . /etc/profile
 
     # Tensorflow optimized for A100 with CUDA 11
-    module load conda/2021-11-30
+    module load conda/2022-07-01
 
     # Activate conda env
     conda activate $CONDA_ENV_PATH
