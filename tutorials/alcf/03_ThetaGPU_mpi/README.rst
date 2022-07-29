@@ -132,7 +132,6 @@ Adapt the executed Python application depending on your needs. Here is an applic
 
     comm = MPI.COMM_WORLD
     rank = comm.Get_rank()
-    size = comm.Get_size()
 
     from deephyper.problem import HpProblem
 
@@ -182,7 +181,6 @@ Adapt the executed Python application depending on your needs. Here is an applic
         from mpi4py import MPI
         comm = MPI.COMM_WORLD
         rank = comm.Get_rank()
-        size = comm.Get_size()
         gpu_local_idx = rank % gpu_per_node
         node = int(rank / gpu_per_node)
 
@@ -217,7 +215,6 @@ Adapt the executed Python application depending on your needs. Here is an applic
 
         comm = MPI.COMM_WORLD
         rank = comm.Get_rank()
-        size = comm.Get_size()
         
     In order to properly use PyTorch while maintaining flexibility, defining the device that the evaluations will be sent to is very important. As all GPUs initially run the same script, they will need their rank defined under the run function. We define the three possible scenarios when running on any given machine:
     
