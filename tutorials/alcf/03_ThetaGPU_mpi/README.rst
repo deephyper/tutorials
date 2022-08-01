@@ -25,7 +25,7 @@ Start by creating a script named ``activate-dhenv.sh`` to initialize your enviro
     . /etc/profile
 
     # Tensorflow optimized for A100 with CUDA 11
-    module load conda/2021-11-30
+    module load conda/2022-07-01
 
     # Activate conda env
     conda activate $CONDA_ENV_PATH
@@ -132,7 +132,6 @@ Adapt the executed Python application depending on your needs. Here is an applic
 
     comm = MPI.COMM_WORLD
     rank = comm.Get_rank()
-    size = comm.Get_size()
 
     from deephyper.problem import HpProblem
 
@@ -175,14 +174,13 @@ Adapt the executed Python application depending on your needs. Here is an applic
 
 .. note::
 
-    If you are using tensorflow, you might want to add this snippet to your script in order to ensure that each worker is restricted to its own gpu (and doesn't access other workers memory) :
+    If you are using tensorflow, you might want to add this snippet to your script in order to ensure that each worker is restricted to its own gpu (and doesn't access other workers memory):
 
     .. code-block:: python
 
         from mpi4py import MPI
         comm = MPI.COMM_WORLD
         rank = comm.Get_rank()
-        size = comm.Get_size()
         gpu_local_idx = rank % gpu_per_node
         node = int(rank / gpu_per_node)
 
@@ -200,6 +198,88 @@ Adapt the executed Python application depending on your needs. Here is an applic
                 logging.info(f"{e}") 
     
     With ``gpu_per_node`` being equal to the ``RANKS_PER_NODE`` value specified in ``job-deephyper.sh``.
+
+.. note::
+    If you are using PyTorch, most of the code from myscript.py starts off similar:
+    
+    .. code-block:: python
+        import mpi4py
+        from mpi4py import MPI
+
+        mpi4py.rc.initialize = False
+        mpi4py.rc.threads = True
+        mpi4py.rc.thread_level = "multiple"
+
+        if not MPI.Is_initialized():
+            MPI.Init_thread()
+
+        comm = MPI.COMM_WORLD
+        rank = comm.Get_rank()
+        
+    In order to properly use PyTorch while maintaining flexibility, defining the device that the evaluations will be sent to is very important. As all GPUs initially run the same script, they will need their rank defined under the run function. We define the three possible scenarios when running on any given machine:
+    
+    .. code-block:: python
+        if is_gpu_available and n_gpus > 1:
+            device = torch.device("cuda", rank)
+            print("Running on GPU ", rank)
+        elif is_gpu_available and n_gpus == 1:
+            device = torch.device("cuda", 0)
+            print("Running on the GPU")
+        else:
+            device = torch.device("cpu")
+            print("Running on the CPU")
+
+    After defining the black box function, we compute the result on the assigned GPU. Note that while in this instance the run function returns a ``objective.item()``, all that is needed is a valid float or integer. A portion of myscript.py should resemble something of the following:
+    
+    .. code-block:: python
+        def run(config: dict):
+            ### Change as needed
+            if is_gpu_available and n_gpus > 1:
+                device = torch.device("cuda", rank)
+                print("Running on GPU ", rank)
+            elif is_gpu_available and n_gpus == 1:
+                device = torch.device("cuda", 0)
+                print("Running on the GPU")
+            else:
+                device = torch.device("cpu")
+                print("Running on the CPU")
+            objective = torch.tensor([-config["x"]**2]).to(device)
+
+            return objective.item()
+
+        if __name__ == "__main__":
+            is_gpu_available = torch.cuda.is_available()
+            n_gpus = torch.cuda.device_count() if is_gpu_available else 0
+
+
+            hp_problem = HpProblem()
+            hp_problem.add_hyperparameter((-10.0, 10.0), "x")
+
+            if rank == 0:
+            # Evaluator creation
+            print("Creation of the Evaluator...")
+
+            with Evaluator.create(
+                run,
+                method="mpicomm",
+            ) as evaluator:
+                if evaluator is not None:
+                    print(f"Creation of the Evaluator done with {evaluator.num_workers} worker(s)")
+
+                    # Search creation
+                    print("Creation of the search instance...")
+                    search = CBO(
+                        hp_problem,
+                        evaluator,
+                    )
+                    print("Creation of the search done")
+
+                    # Search execution
+                    print("Starting the search...")
+                    results = search.search(timeout=timeout)
+                    print("Search is done")
+
+                    results.to_csv(os.path.join(search_log_dir, f"results.csv"))
 
 Finally, submit the script using :
 
