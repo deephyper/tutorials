@@ -7,6 +7,12 @@ This tutorial demonstrates the DeepHyper ability to optimize hyperparameters of 
 
 This demonstration emulates a situation when a user has a binary that does some computations, and hyperparameters of these computations have to be optimized. In general, one can split binary execution into three stages. In the first, initialization stage, all necessary input files are prepared and a logging directory is created. In the second stage, an MPI program is submitted for execution. And, in the third, finalization stage, output files or artifacts are saved and analyzed, target value obtained from them is returned to DeepHyper.
 
+The tutorial requires the installation of ``parse``:
+
+.. code-block:: console
+
+   $ pip install parse
+
 
 Example MPI binary compiled from of c++ code
 --------------------------------------------
