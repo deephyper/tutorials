@@ -21,6 +21,22 @@ import os.path as osp
 import logging
 import sys
 
+import mpi4py
+from mpi4py import MPI
+
+mpi4py.rc.initialize = False
+mpi4py.rc.threads = True
+mpi4py.rc.thread_level = "multiple"
+
+if not MPI.Is_initialized():
+    MPI.Init_thread()
+
+comm = MPI.COMM_WORLD
+rank = comm.Get_rank()
+
+search_log_dir = "search_log/"
+pathlib.Path(search_log_dir).mkdir(parents=False, exist_ok=True)
+
 search_log_dir = "search_log/"
 pathlib.Path(search_log_dir).mkdir(parents=False, exist_ok=True)
 
@@ -223,7 +239,7 @@ if __name__ == "__main__":
 
     with Evaluator.create(
         run,
-        method="thread",
+        method="mpicomm",
         method_kwargs=method_kwargs
     ) as evaluator:
         if evaluator is not None:
