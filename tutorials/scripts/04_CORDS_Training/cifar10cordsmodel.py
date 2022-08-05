@@ -2,14 +2,14 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as f
 import torch.optim as o
-from torch.utils.data import DataLoader, random_split
+from torch.utils.data import DataLoader
 
 import mpi4py
 from mpi4py import MPI
 
 import cords
 from cords.utils.data.datasets.SL import gen_dataset
-from cords.utils.data.dataloader.SL.adaptive import GradMatchDataLoader, RandomDataLoader, OLRandomDataLoader
+from cords.utils.data.dataloader.SL.adaptive import GradMatchDataLoader, RandomDataLoader
 from dotmap import DotMap
 
 import deephyper as dh
@@ -23,8 +23,6 @@ import os
 import os.path as osp
 import logging
 import sys
-import cProfile
-import pstats
 
 mpi4py.rc.initialize = False
 mpi4py.rc.threads = True
