@@ -73,15 +73,16 @@ CORDS requires the use of a logger, so one could configure the logger as the fol
 **CORDS DataLoaders**
 
 In order to use the subset selection algorithms provided by CORDS, their specific DataLoader must be used as well. The code below provides to examples of DataLoaders for the Grad-Match and Random strategies respectively. The variables in the "dss_args" mean the following:
- - ``eta``: learning rate
- - ``kappa``: used for warm-starting. Determines the amount of epochs that use the full dataset.
- - ``num_epochs``: total amount of epochs.
- - ``select_every``: determines the frequency of re-evaluating the subsets.
- - ``selection_type``: way that the subsets are determined.
- - ``valid``: use validation data for subset evaluation.
- - ``v1``: whether to use the new omp wrapper or not.
- - ``lam``: regularization coefficient.
- - ``eps``: the tolerance level of the algorithm's convergence.
+
+- ``eta``: learning rate
+- ``kappa``: used for warm-starting. Determines the amount of epochs that use the full dataset.
+- ``num_epochs``: total amount of epochs.
+- ``select_every``: determines the frequency of re-evaluating the subsets.
+- ``selection_type``: way that the subsets are determined.
+- ``valid``: use validation data for subset evaluation.
+- ``v1``: whether to use the new omp wrapper or not.
+- ``lam``: regularization coefficient.
+- ``eps``: the tolerance level of the algorithm's convergence.
  
 More information concerning different selection strategies and other variables may be found at https://github.com/decile-team/cords. The Random strategy was included as another potential example if using a GPU.
 
@@ -122,8 +123,9 @@ More information concerning different selection strategies and other variables m
 **Training and Validation**
 
 Training with CORDS is similar to other PyTorch model training scripts, but one key change is the change to the loss function:
- - 3 variables to call in a CORDS dataloader
- - ``loss = torch.dot(criterion(predictions, labels), weights / weights.sum())``
+
+- 3 variables to call in a CORDS dataloader
+- ``loss = torch.dot(criterion(predictions, labels), weights / weights.sum())``
  
 Since weights are used to update the subset, it must be included in any loop or loss funcion calculation. Little to no change is needed for validation compared to previous tutorials.
 
