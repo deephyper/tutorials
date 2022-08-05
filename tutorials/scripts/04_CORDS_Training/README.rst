@@ -46,7 +46,7 @@ The dataset will be CIFAR10, an image database of 10 categories of cats, dogs, p
 
 We can use CORDS' dataset generator to simplify preprocessing. 
 
-  .. code-block:: python
+.. code-block:: python
   
   def load_data():
     train_ds, valid_ds, test_ds, num_cls = gen_dataset('/lus/grand/projects/datascience/ianwixom/expcifar/', 'cifar10', None, isnumpy=False)
