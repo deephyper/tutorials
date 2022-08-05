@@ -50,6 +50,8 @@ We can use CORDS' dataset generator to simplify preprocessing.
   
   def load_data():
     train_ds, valid_ds, test_ds, num_cls = gen_dataset('/lus/grand/projects/datascience/ianwixom/expcifar/', 'cifar10', None, isnumpy=False)
+    
+    return train_ds, valid_ds
 
 **CORDS Prerequisites**
 
