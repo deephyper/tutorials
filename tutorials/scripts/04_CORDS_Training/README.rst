@@ -44,6 +44,13 @@ The dataset will be CIFAR10, an image database of 10 categories of cats, dogs, p
   import torchvision
   from torchvision import CIFAR10
 
+We can use CORDS' dataset generator to simplify preprocessing. 
+
+  .. code-block:: python
+  
+  def load_data():
+    train_ds, valid_ds, test_ds, num_cls = gen_dataset('/lus/grand/projects/datascience/ianwixom/expcifar/', 'cifar10', None, isnumpy=False)
+
 **CORDS Prerequisites**
 
 CORDS requires the use of a logger, so one could configure the logger as the following based from their tutorials:
@@ -164,7 +171,7 @@ Since weights are used to update the subset, it must be included in any loop or 
       
 **Residual Network Model**
 
-Residual networks are types of deep learning models that utilize residuals from previous layers to improve accuracy and performance. The code below was written by CORDS developer Krishnateja Killamsetty in turn from the "Deep Residual Learning for Image Recognition" paper. It has been slight
+Residual networks are types of deep learning models that utilize residuals from previous layers to improve accuracy and performance. The code below with some slight modification was written by CORDS developer Krishnateja Killamsetty in turn from the "Deep Residual Learning for Image Recognition" paper.
 
 .. code-block:: python
 
