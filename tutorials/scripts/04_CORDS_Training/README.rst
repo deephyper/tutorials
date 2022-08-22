@@ -9,8 +9,9 @@ In this tutorial we will be covering the use of subset selection algorithms. Sub
 
    $ pip install cords
    
-Note:
-As of the writing of this tutorial, the suggested use is for CPU only for CORDS use. If there is needed use on GPUs such as ThetaGPU, one could edit the module files such that the torchtext module is removed. This module conflicts with PyTorch 1.12+ since CORDS requires 0.10.0 for torchtext, which is needed to use CUDA 11.3. We will use the following models to develop and train our model:
+.. note::
+
+    As of the writing of this tutorial, the suggested use is for CPU only for CORDS use. If there is needed use on GPUs such as ThetaGPU, one could edit the module files such that the torchtext module is removed. This module conflicts with PyTorch 1.12+ since CORDS requires 0.10.0 for torchtext, which is needed to use CUDA 11.3. We will use the following imports to develop and train our model:
 
 .. code-block:: python
 
@@ -44,7 +45,7 @@ The dataset will be CIFAR10, an image database of 10 categories of cats, dogs, p
   import torchvision
   from torchvision import CIFAR10
 
-We can use CORDS' dataset generator to simplify preprocessing. 
+We can use CORDS' dataset generator to simplify preprocessing. Make sure to adapt the output path of the downloaded dataset ``/lus/grand/projects/datascience/ianwixom/expcifar/``:
 
 .. code-block:: python
   
@@ -81,7 +82,7 @@ CORDS requires the use of a logger, so one could configure the logger as the fol
   
 **CORDS DataLoaders**
 
-In order to use the subset selection algorithms provided by CORDS, their specific DataLoader must be used as well. The code below provides to examples of DataLoaders for the Grad-Match and Random strategies respectively. The variables in the "dss_args" mean the following:
+In order to use the subset selection algorithms provided by CORDS, their specific DataLoader must be used as well. The code below provides two examples of DataLoaders for the Grad-Match and Random strategies respectively. The variables in the ``dss_args`` mean the following:
 
 - ``eta``: learning rate
 - ``kappa``: used for warm-starting. Determines the amount of epochs that use the full dataset.
