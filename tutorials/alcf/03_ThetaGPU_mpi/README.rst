@@ -203,6 +203,7 @@ Adapt the executed Python application depending on your needs. Here is an applic
     If you are using PyTorch, most of the code from myscript.py starts off similar:
     
     .. code-block:: python
+
         import mpi4py
         from mpi4py import MPI
 
@@ -219,6 +220,7 @@ Adapt the executed Python application depending on your needs. Here is an applic
     In order to properly use PyTorch while maintaining flexibility, defining the device that the evaluations will be sent to is very important. As all GPUs initially run the same script, they will need their rank defined under the run function. We define the three possible scenarios when running on any given machine:
     
     .. code-block:: python
+
         if is_gpu_available and n_gpus > 1:
             device = torch.device("cuda", rank)
             print("Running on GPU ", rank)
@@ -232,6 +234,7 @@ Adapt the executed Python application depending on your needs. Here is an applic
     After defining the black box function, we compute the result on the assigned GPU. Note that while in this instance the run function returns a ``objective.item()``, all that is needed is a valid float or integer. A portion of myscript.py should resemble something of the following:
     
     .. code-block:: python
+        
         def run(config: dict):
             ### Change as needed
             if is_gpu_available and n_gpus > 1:
