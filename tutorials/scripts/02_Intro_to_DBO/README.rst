@@ -14,17 +14,17 @@ Before starting, make sure you have an installed implementation of MPI (e.g., op
 
 .. code-block:: console
 
-   # Activate first you conda environment
+   $ # Activate first you conda environment
    $ conda activate dh
 
-   # Then create a Spack environment to install RedisJson
+   $ # Then create a Spack environment to install RedisJson
    $ spack env create redisjson
    $ spack env activate redisjson
    $ spack repo add deephyper-spack-packages
    $ spack add redisjson
    $ spack install
 
-   # Start the redis server
+   $ # Start the redis server
    $ redis-server $(spack find --path redisjson | grep -o "/.*/redisjson.*")/redis.conf
 
 Definition of the problem : the Ackley function
