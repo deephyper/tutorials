@@ -1,9 +1,31 @@
-Introduction to Asynchronous Distributed Bayesian Optimization (DBO)
-====================================================================
+Introduction to Distributed Bayesian Optimization (DBO) with MPI (Communication) and Redis (Storage)
+====================================================================================================
 
 **Author(s)**: Joceran Gouneau & Romain Egele.
 
-In this tutorial we show how to use the Distributed Bayesian Optimization (DBO) search algorithm to perform hyperparameter optimization on the Ackley function.
+In this tutorial we show how to use the Distributed Bayesian Optimization (DBO) search algorithm with MPI (for the communication) and Redis (for the storage service) to perform hyperparameter optimization on the Ackley function.
+
+
+
+MPI and Redis requirements
+--------------------------
+
+Before starting, make sure you have an installed implementation of MPI (e.g., openmpi) and RedisJson. The following instructions can be followed to install and start a Redis server with the RedisJSON module: 
+
+.. code-block:: console
+
+   # Activate first you conda environment
+   $ conda activate dh
+
+   # Then create a Spack environment to install RedisJson
+   $ spack env create redisjson
+   $ spack env activate redisjson
+   $ spack repo add deephyper-spack-packages
+   $ spack add redisjson
+   $ spack install
+
+   # Start the redis server
+   $ redis-server $(spack find --path redisjson | grep -o "/.*/redisjson.*")/redis.conf
 
 Definition of the problem : the Ackley function
 -----------------------------------------------
@@ -19,7 +41,7 @@ Definition of the problem : the Ackley function
 
 .. note::
 
-   We are using this function to emulate a realistic problem while keeping the definition of the hyperparameter search space and run function as simple as possible ; if you are searching for neural network use cases we redirect you to our Colab and Notebook tutorials.
+   We are using this function to emulate a realistic problem while keeping the definition of the hyperparameter search space and run function as simple as possible ; if you are searching for neural network use cases we redirect you to our others tutorials.
 
 First we have to define the Hyperparameter search space as well as the run function, which, given a certain ``config`` of hyperparameters, should return the objective we want to maximize. We are computing the 10-D (:math:`d = 10`) Ackley function with :math:`a = 20`, :math:`b = 0.2` and :math:`c = 2\pi` and want to find its minimum :math:`f(x=(0, \dots , 0)) = 0` on the domain :math:`[-32.768, 32.768]^{10}`.
 Thus we define the hyperparameter problem as :math:`x_i \in [-32.768, 32.768]~ \forall i \in [|0,9|]` and the objective returned by the ``run`` function as :math:`-f(x)`.
@@ -47,56 +69,73 @@ DBO can be formally described in the following algorithm:
    :alt: DBO algorithm
    :align: center
 
-Running DBO
-___________
+Initialize MPI
+______________
 
-Unlike CBO, DBO doesn't use any evaluator instance, everything is comprised within the DBO search instance and is only compatible with MPI for now:
-
-.. code-block:: python
-   :caption: **file**: ``search.py``
-
-   from ackley import hp_problem, run
-
-   search = DBO(
-      hp_problem,
-      run,
-      sync_communication=False,
-      log_dir=".",
-      checkpoint_file="results.csv",
-      checkpoint_freq=1,
-   )
-
-.. note::
-
-   The ``checkpoint_file`` and ``checkpoint_freq`` parameters can be used to regularly save the state of the search while it is being performed, this is equivalent to saving the ``results`` dataframe returned by the search in the file named ``checkpoint_file`` within the directory ``log_dir`` at a frequency ``checkpoint_freq``. It is good practice to perform this checkpoint in the case of an issue during the search in order to still have results even though the search doesn't successfuly terminate. By default the results are saved at each iteration in the ``results.csv`` of the current directory.
-
-.. note::
-
-   The ``sync_communication`` parameter, when set to ``True``, allows to force the workers to broadcast their new evaluations synchronously, in this case the frequency at which this broadcast is performed can be specified with the ``sync_communication_freq`` parameter. For example with ``sync_communication=True`` and ``sync_communication_freq=10``, each worker will perform 10 evaluations and wait for every other worker to do as much before broadcasting these new evaluations, and then repeat this process until the end of the search.
-
-Execution of the search : using MPI
------------------------------------
-
-The backend of DBO uses MPI, so if we want for example to get the final ``results`` and save it at a specific location, we need to get it from a single worker while executing the search for the same amount of time on each one of them :
+First we need to initialize MPI and get the communicator and the rank of the current worker, we can also import all required modules:
 
 .. code-block:: python
-   :caption: **file**: ``search.py``
+   :caption: **files**: ``mpi_dbo_with_redis.py``
 
    from mpi4py import MPI
+
+   from deephyper.search.hps import MPIDistributedBO
+
+   from ackley import hp_problem, run
 
    comm = MPI.COMM_WORLD
    rank = comm.Get_rank()
 
-   timeout = 10
+Create the Evaluator
+____________________
+
+In DBO, the independant search instances in different ranks are communicating with each other through a storage. The storage is an instance of the ``deephyper.evaluator.storage.Storage`` class and is used to store the search data (e.g., the configuration/objective pairs).
+
+
+.. code-block:: python
+   :caption: **files**: ``mpi_dbo_with_redis.py``
+
+   # Each rank creates a RedisStorage client and connects to the storage server
+   # indicated by host:port. Then, the storage is passed to the evaluator.
+   evaluator = MPIDistributedBO.bootstrap_evaluator(
+      run,
+      evaluator_type="serial", # one worker to evaluate the run-function per rank
+      storage_type="redis",
+      storage_kwargs={
+         "host": "localhost",
+         "port": 6379,
+      },
+      comm=comm,
+      root=0,
+   )
+
+   # A new search was created by the bootstrap_evaluator function.
    if rank == 0:
-      results = search.search(timeout=timeout)
-      results.to_csv("results.csv")
-   else:
-      search.search(timeout=timeout)
+      print(f"Search Id: {evaluator._search_id}")
+
+Create and Run the Search
+_________________________
+
+The search can now be created using the previously created ``evaluator`` and the same communicator ``comm``:
+
+.. code-block:: python
+   :caption: **files**: ``mpi_dbo_with_redis.py``
+
+   # The Distributed Bayesian Optimization search instance is created
+   # With the corresponding evaluator and communicator.
+   search = MPIDistributedBO(
+      hp_problem, evaluator, log_dir="mpi-distributed-log", comm=comm
+   )
+
+   # The search is started with a timeout of 10 seconds.
+   results = search.search(timeout=10)
 
 
-Finaly, we can run the ``search.py`` script with MPI:
+The search can now be executed with MPI:
 
 .. code-block:: console
-   
-   $ mpirun -np 10 python search.py
+
+   $ mpirun -np 4 python mpi_dbo_with_redis.py
+
+Now check the ``mpi-distributed-log/results.csv`` file and it should contain about 40 (1 seconde per evaluator, 
+4 search instancidated and 10 secondes in total) configurations and objectives (a bit less given some overheads).

@@ -18,6 +18,7 @@ def ackley(x, a=20, b=0.2, c=2*np.pi):
     return y
 
 def run(config):
+    time.sleep(1)
     x = np.array([config[f"x{i}"] for i in range(d)])
     x = np.asarray_chkfinite(x)  # ValueError if any NaN or Inf
     return -ackley(x)
