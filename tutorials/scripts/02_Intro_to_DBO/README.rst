@@ -51,7 +51,7 @@ Definition of the distributed Bayesian optimization search (DBO)
 ----------------------------------------------------------------
 
 .. image:: figures/cbo_vs_dbo.png
-   :scale: 30%
+   :scale: 50%
    :alt: Centralized (left) and Distributed (right) architectures
    :align: center
 
@@ -118,10 +118,19 @@ The search can now be created using the previously created ``evaluator`` and the
 .. code-block:: python
    :caption: **files**: ``mpi_dbo_with_redis.py``
 
+   # Define the Periodic Exponential Decay scheduler to avoid over-exploration
+   # When increasing the number of parallel workers. This mechanism will enforce
+   # All agent to periodically converge to the exploitation regime of Bayesian Optimization.
+   scheduler = {
+            "type": "periodic-exp-decay",
+            "periode": 50,
+            "rate": 0.1,
+   }
+
    # The Distributed Bayesian Optimization search instance is created
    # With the corresponding evaluator and communicator.
    search = MPIDistributedBO(
-      hp_problem, evaluator, log_dir="mpi-distributed-log", comm=comm
+      hp_problem, evaluator, log_dir="mpi-distributed-log", comm=comm, scheduler=scheduler
    )
 
    # The search is started with a timeout of 10 seconds.
