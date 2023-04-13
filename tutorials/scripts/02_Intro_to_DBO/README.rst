@@ -51,7 +51,7 @@ Definition of the distributed Bayesian optimization search (DBO)
 ----------------------------------------------------------------
 
 .. image:: figures/cbo_vs_dbo.png
-   :scale: 50%
+   :scale: 15%
    :alt: Centralized (left) and Distributed (right) architectures
    :align: center
 
