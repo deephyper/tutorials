@@ -12,4 +12,5 @@ Colab
    HPS_Reduce_Overfitting_ML.ipynb
    AutoML_with_Sklearn.ipynb
    NAS_basic.ipynb
+   Multi_objective_optimization_101.ipynb
    
