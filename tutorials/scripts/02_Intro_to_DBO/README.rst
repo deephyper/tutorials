@@ -10,7 +10,7 @@ In this tutorial we show how to use the Distributed Bayesian Optimization (DBO) 
 MPI and Redis requirements
 --------------------------
 
-Before starting, make sure you have an installed implementation of MPI (e.g., openmpi) and RedisJson. The following instructions can be followed to install and start a Redis server with the RedisJSON module: 
+Before starting, make sure you have an installed implementation of MPI (e.g., openmpi) and RedisJson. The following instructions can be followed to install Redis with the RedisJSON plugin: 
 
 .. code-block:: console
 
@@ -23,9 +23,6 @@ Before starting, make sure you have an installed implementation of MPI (e.g., op
    $ spack repo add deephyper-spack-packages
    $ spack add redisjson
    $ spack install
-
-   $ # Start the redis server
-   $ redis-server $(spack find --path redisjson | grep -o "/.*/redisjson.*")/redis.conf
 
 Definition of the problem : the Ackley function
 -----------------------------------------------
@@ -53,8 +50,8 @@ Thus we define the hyperparameter problem as :math:`x_i \in [-32.768, 32.768]~ \
 Definition of the distributed Bayesian optimization search (DBO)
 ----------------------------------------------------------------
 
-.. image:: figures/cbo_vs_dbo.jpg
-   :scale: 30%
+.. image:: figures/cbo_vs_dbo.png
+   :scale: 15%
    :alt: Centralized (left) and Distributed (right) architectures
    :align: center
 
@@ -64,7 +61,7 @@ This difference makes DBO a preferable choice when the run function is relativel
 
 DBO can be formally described in the following algorithm:
 
-.. image:: figures/dbo_algo.jpg
+.. image:: figures/dbo_algo.png
    :scale: 35%
    :alt: DBO algorithm
    :align: center
@@ -121,17 +118,32 @@ The search can now be created using the previously created ``evaluator`` and the
 .. code-block:: python
    :caption: **files**: ``mpi_dbo_with_redis.py``
 
+   # Define the Periodic Exponential Decay scheduler to avoid over-exploration
+   # When increasing the number of parallel workers. This mechanism will enforce
+   # All agent to periodically converge to the exploitation regime of Bayesian Optimization.
+   scheduler = {
+            "type": "periodic-exp-decay",
+            "periode": 50,
+            "rate": 0.1,
+   }
+
    # The Distributed Bayesian Optimization search instance is created
    # With the corresponding evaluator and communicator.
    search = MPIDistributedBO(
-      hp_problem, evaluator, log_dir="mpi-distributed-log", comm=comm
+      hp_problem, evaluator, log_dir="mpi-distributed-log", comm=comm, scheduler=scheduler
    )
 
    # The search is started with a timeout of 10 seconds.
    results = search.search(timeout=10)
 
 
-The search can now be executed with MPI:
+The search can now be executed. First, start the Redis database server:
+
+.. code-block:: console
+
+   $ redis-server $(spack find --path redisjson | grep -o "/.*/redisjson.*")/redis.conf
+
+Once the service is started and runs in the background, you can start the search with the following command:
 
 .. code-block:: console
 
