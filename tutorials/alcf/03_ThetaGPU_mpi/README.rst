@@ -121,6 +121,7 @@ Adapt the executed Python application depending on your needs. Here is an applic
     mpi4py.rc.initialize = False
     mpi4py.rc.threads = True
     mpi4py.rc.thread_level = "multiple"
+    mpi4py.rc.recv_mprobe = False
 
     from deephyper.evaluator import Evaluator
     from deephyper.search.hps import CBO
