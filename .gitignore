@@ -143,3 +143,4 @@ _build/
 context.yaml
 results.csv
 deephyper*.log
+*.keras
