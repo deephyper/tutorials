@@ -42,7 +42,7 @@ Let us start by defining a toy hyperparameter search. Create a script named ``my
 
 .. code-block:: python
 
-    from deephyper.problem import HpProblem
+    from deephyper.hpo import HpProblem
 
     # define the run-function to evaluation a given hyperparameter configuration
     # here we simply want to maximise a polynomial function
@@ -188,8 +188,8 @@ Then add the following content to ``deephyper-job.qsub``:
 
         if __name__ == "__main__":
             import os
-            from deephyper.problem import HpProblem
-            from deephyper.search.hps import AMBS
+            from deephyper.hpo import HpProblem
+            from deephyper.hpo import CBO
             from deephyper.evaluator.evaluate import Evaluator
 
             problem = HpProblem()
@@ -202,7 +202,7 @@ Then add the following content to ``deephyper-job.qsub``:
                 }
             )
 
-            search = AMBS(problem, evaluator)
+            search = CBO(problem, evaluator)
 
             search.search()
 

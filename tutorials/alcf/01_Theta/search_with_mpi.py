@@ -93,8 +93,8 @@ def test_run_mpi():
 def execute_deephyper():
 
     from deephyper.evaluator.callback import LoggerCallback
-    from deephyper.problem import HpProblem
-    from deephyper.search.hps import AMBS
+    from deephyper.hpo import HpProblem
+    from deephyper.hpo import CBO
 
     problem = HpProblem()
     problem.add_hyperparameter((0, 9), "arg")
@@ -103,7 +103,7 @@ def execute_deephyper():
         run_mpi, num_workers=1, callbacks=[LoggerCallback()], nodes_per_task=2
     )
 
-    search = AMBS(problem, evaluator)
+    search = CBO(problem, evaluator)
 
     results = search.search(max_evals=10)
 

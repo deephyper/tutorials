@@ -1,6 +1,6 @@
 import time
 import numpy as np
-from deephyper.problem import HpProblem
+from deephyper.hpo import HpProblem
 
 d = 10
 domain = (-32.768, 32.768)

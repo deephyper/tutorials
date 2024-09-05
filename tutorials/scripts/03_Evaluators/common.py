@@ -4,7 +4,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 
-from deephyper.search.hps import CBO
+from deephyper.hpo import CBO
 from ackley import hp_problem
 
 NUM_WORKERS = 5

@@ -1,4 +1,4 @@
-from deephyper.problem import HpProblem
+from deephyper.hpo import HpProblem
 
 Problem = HpProblem()
 

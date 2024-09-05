@@ -1,6 +1,6 @@
 from mpi4py import MPI
 
-from deephyper.search.hps import MPIDistributedBO
+from deephyper.hpo import MPIDistributedBO
 
 
 from ackley import hp_problem, run

@@ -76,7 +76,7 @@ First we need to initialize MPI and get the communicator and the rank of the cur
 
    from mpi4py import MPI
 
-   from deephyper.search.hps import MPIDistributedBO
+   from deephyper.hpo import MPIDistributedBO
 
    from ackley import hp_problem, run
 

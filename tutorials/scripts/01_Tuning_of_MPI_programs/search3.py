@@ -2,8 +2,8 @@ import os
 import logging
 
 from deephyper.evaluator.callback import LoggerCallback
-from deephyper.problem import HpProblem
-from deephyper.search.hps import CBO
+from deephyper.hpo import HpProblem
+from deephyper.hpo import CBO
 from deephyper.evaluator import SubprocessEvaluator, queued
 
 

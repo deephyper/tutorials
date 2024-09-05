@@ -1,6 +1,6 @@
 import time
 import numpy as np
-from deephyper.problem import HpProblem
+from deephyper.hpo import HpProblem
 from deephyper.evaluator import profile
 
 d = 10

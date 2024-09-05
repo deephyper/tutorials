@@ -1,7 +1,7 @@
 from functools import partial
 
-from deephyper.problem import HpProblem
-from deephyper.search.hps import CBO
+from deephyper.hpo import HpProblem
+from deephyper.hpo import CBO
 from deephyper.evaluator import SubprocessEvaluator
 
 from search1 import run_mpi

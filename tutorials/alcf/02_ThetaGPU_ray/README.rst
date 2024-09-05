@@ -155,10 +155,10 @@ Adapt the executed Python application depending on your needs. Here is an applic
     import numpy as np
 
     from deephyper.evaluator import Evaluator
-    from deephyper.search.hps import CBO
+    from deephyper.hpo import CBO
     from deephyper.evaluator.callback import ProfilingCallback
 
-    from deephyper.problem import HpProblem
+    from deephyper.hpo import HpProblem
 
 
     hp_problem = HpProblem()

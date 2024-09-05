@@ -124,7 +124,7 @@ Adapt the executed Python application depending on your needs. Here is an applic
     mpi4py.rc.recv_mprobe = False
 
     from deephyper.evaluator import Evaluator
-    from deephyper.search.hps import CBO
+    from deephyper.hpo import CBO
 
     from mpi4py import MPI
 
@@ -134,7 +134,7 @@ Adapt the executed Python application depending on your needs. Here is an applic
     comm = MPI.COMM_WORLD
     rank = comm.Get_rank()
 
-    from deephyper.problem import HpProblem
+    from deephyper.hpo import HpProblem
 
 
     hp_problem = HpProblem()
