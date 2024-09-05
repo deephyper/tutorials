@@ -11,4 +11,5 @@ Colab
    HPS_basic_classification_with_tabular_with_stopper/notebook.ipynb
    HPS_Reduce_Overfitting_ML.ipynb
    Multi_objective_optimization_101.ipynb
+   NAS_basic_tf_keras2.ipynb
    
