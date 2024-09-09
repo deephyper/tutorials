@@ -144,3 +144,4 @@ context.yaml
 results.csv
 deephyper*.log
 *.keras
+*.pkl
