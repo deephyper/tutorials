@@ -5,7 +5,7 @@ Tuning of MPI Programs
 
 This tutorial demonstrates the DeepHyper ability to optimize hyperparameters of MPI programs. As a demonstration example, we write simple MPI c++ code and compile it to obtain a binary. When executed the binary initializes MPI, prints some information, and computes a polynomial with parameter obtained through the command line. In DeepHyper we will optimize this binary as black-box function which obtains some parameters through the command line (or input file) and produces a result of executioni. 
 
-This demonstration emulates a situation when a user has a binary that does some computations, and hyperparameters of these computations have to be optimized. In general, one can split binary execution into three stages. In the first, initialization stage, all necessary input files are prepared and a logging directory is created. In the second stage, an MPI program is submitted for execution. And, in the third, finalization stage, output files or artifacts are saved and analyzed, target value obtained from them is returned to DeepHyper.
+This demonstration emulates a situation when a user has a binary that does some computations, and hyperparameters of these computations have to be optimized. In general, one can split binary execution into three stages. In the initialization stage, all necessary input files are prepared and a logging directory is created. In the second stage, an MPI program is submitted for execution. And, in the finalization stage, output files or artifacts are saved and analyzed, target value obtained from them is returned to DeepHyper.
 
 The tutorial requires the installation of ``parse``:
 
@@ -44,7 +44,7 @@ As DeepHyper accepts a Python function as a target function for optimization one
 In ``run_mpi()`` we obtain the absolute path of the MPI binary,  execute it with ``subprocess`` module, and parse the captured output. When submitting to execution in ``supbrosess.run`` we use ``mpirun`` as an executor, specify necessary environment variables and hosts with slots, and add binary ``exe`` with an argument obtained through ``config`` dictionary.  The result of ``exe`` binary execution obtained through parsing is returned from ``run_mpi()``.
 
 
-More powerfull wrapper with initialization and finalization
+More powerful wrapper with initialization and finalization
 -----------------------------------------------------------
 
 In spite of being able to run simple MPI binary this wrapper has several limitations. The simple MPI binary we compiled above obtains hyperparameters through a command-line interface but in general, binary may require input files. Therefore it is important to do some initialization before submitting binary for execution. Another drawback is the absence of finalization. In this demonstration, we create a context manager ``Experiment`` for these purposes. In the initialization phase, ``Experiment`` creates a directory for the run, and changed the correct path to it, under finalization if changes path back. In the created folder we make to two files for ``stdout`` and ``stderr`` produced by binary ``exe``. Running command is also saved. 
