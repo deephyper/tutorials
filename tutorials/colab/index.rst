@@ -1,5 +1,7 @@
-Colab
-=====
+.. _tutorials-colab:
+
+Colab Tutorials
+===============
 
 .. toctree::
    :titlesonly:

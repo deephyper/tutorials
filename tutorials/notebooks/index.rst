@@ -1,5 +1,7 @@
-Notebooks
-=========
+.. _tutorials-jupyter:
+
+Jupyter Notebooks
+=================
 
 .. toctree::
    :titlesonly:

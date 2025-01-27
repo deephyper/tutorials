@@ -1,5 +1,7 @@
-Scripts
-=======
+.. _tutorials-script:
+
+Python Scripts
+==============
 
 .. toctree::
    :titlesonly:
