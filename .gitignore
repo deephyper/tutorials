@@ -145,3 +145,4 @@ results.csv
 deephyper*.log
 *.keras
 *.pkl
+*.pt
