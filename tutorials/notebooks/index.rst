@@ -10,5 +10,4 @@ Jupyter Notebooks
 
    02_HPS_basic_text_classification_using_pytorch/tutorial.ipynb
    07_HPO_and_UQ_Ensemble_ScikitLearn/tutorial.ipynb
-   08_NAS_and_UQ_Ensemble_Pytorch/tutorial.ipynb
    09_HPO_and_Explainability/tutorial.ipynb
