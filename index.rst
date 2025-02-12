@@ -16,4 +16,3 @@ The :ref:`Python Scripts tutorials <tutorials-script>` are tutorials taking the 
    tutorials/colab/index
    tutorials/notebooks/index
    tutorials/scripts/index
-   Argonne LCF <tutorials/alcf/index>
